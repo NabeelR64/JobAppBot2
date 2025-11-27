@@ -1,0 +1,26 @@
+<div class="swipe-container">
+    <div class="card job-card" *ngIf="currentJob; else noJobs">
+        <div class="job-header">
+            <h2>{{ currentJob.title }}</h2>
+            <h3>{{ currentJob.company_name }}</h3>
+        </div>
+        <div class="job-details">
+            <p><strong>Location:</strong> {{ currentJob.location }}</p>
+            <p><strong>Salary:</strong> {{ currentJob.salary_range }}</p>
+            <p><strong>Type:</strong> {{ currentJob.employment_type }}</p>
+            <p class="description">{{ currentJob.description }}</p>
+        </div>
+        <div class="actions">
+            <button class="btn-swipe btn-left" (click)="swipe('LEFT')">Skip</button>
+            <button class="btn-swipe btn-right" (click)="swipe('RIGHT')">Apply</button>
+        </div>
+    </div>
+
+    <ng-template #noJobs>
+        <div class="no-jobs">
+            <h2>No more jobs!</h2>
+            <p>Check back later for more recommendations.</p>
+            <button class="btn-primary" (click)="loadJobs()">Refresh</button>
+        </div>
+    </ng-template>
+</div>

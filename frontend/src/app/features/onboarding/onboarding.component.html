@@ -1,0 +1,42 @@
+<div class="onboarding-container">
+    <div class="card onboarding-card">
+        <h2>Setup Your Profile</h2>
+
+        <div *ngIf="step === 1">
+            <h3>Step 1: Upload Resume</h3>
+            <p>Upload your resume (PDF or DOCX) to get started.</p>
+            <input type="file" (change)="onFileSelected($event)" accept=".pdf,.docx">
+            <button class="btn-primary" (click)="uploadResume()" [disabled]="!resumeFile">Next</button>
+        </div>
+
+        <div *ngIf="step === 2">
+            <h3>Step 2: Preferences</h3>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" [(ngModel)]="profile.name">
+            </div>
+            <div class="form-group">
+                <label>Desired Roles (comma separated)</label>
+                <input type="text" [(ngModel)]="profile.desired_roles"
+                    placeholder="e.g. Backend Engineer, Data Scientist">
+            </div>
+            <div class="form-group">
+                <label>Desired Locations (comma separated)</label>
+                <input type="text" [(ngModel)]="profile.desired_locations" placeholder="e.g. New York, Remote">
+            </div>
+            <div class="form-group">
+                <label>Min Salary</label>
+                <input type="number" [(ngModel)]="profile.desired_salary_min">
+            </div>
+            <div class="form-group">
+                <label>Remote Preference</label>
+                <select [(ngModel)]="profile.remote_preference">
+                    <option value="REMOTE">Remote</option>
+                    <option value="HYBRID">Hybrid</option>
+                    <option value="ON_SITE">On-site</option>
+                </select>
+            </div>
+            <button class="btn-primary" (click)="submitProfile()">Finish</button>
+        </div>
+    </div>
+</div>

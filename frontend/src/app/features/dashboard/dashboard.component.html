@@ -1,0 +1,30 @@
+<div class="dashboard-container">
+    <h2>My Applications</h2>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Applied On</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let app of applications">
+                    <td>{{ app.job_posting.company_name }}</td>
+                    <td>{{ app.job_posting.title }}</td>
+                    <td>
+                        <span class="status-badge" [ngClass]="app.status.toLowerCase()">
+                            {{ app.status }}
+                        </span>
+                    </td>
+                    <td>{{ app.created_at | date }}</td>
+                </tr>
+                <tr *ngIf="applications.length === 0">
+                    <td colspan="4" class="text-center">No applications yet. Start swiping!</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
