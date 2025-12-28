@@ -11,6 +11,12 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "password"
     POSTGRES_DB: str = "jinder"
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
+    
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: Optional[str] = None
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     @property
     def database_url(self) -> str:

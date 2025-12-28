@@ -10,6 +10,7 @@ class UserProfileBase(BaseModel):
     desired_roles: Optional[List[str]] = []
     remote_preference: Optional[RemotePreference] = None
     seniority_preference: Optional[str] = None
+    company_size_prefs: Optional[List[str]] = []
     disallowed_categories: Optional[List[str]] = []
     phone_number: Optional[str] = None
 
@@ -32,9 +33,13 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     google_sub: str
 
+
+from .resume import Resume
+
 class User(UserBase):
     id: int
     profile: Optional[UserProfile] = None
+    resume: Optional[Resume] = None
 
     class Config:
         from_attributes = True

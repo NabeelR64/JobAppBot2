@@ -23,17 +23,51 @@ async def upload_resume(
     content = await file.read()
     text = resume_parser.extract_text_from_file(content, file.filename)
     
-    # Save to DB (or S3 in production)
-    # For MVP, we'll just save the path as the filename and text
+
+    # Save file to disk
+    import os
+    import shutil
+    
+    UPLOAD_DIR = "uploads"
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    file_location = f"{UPLOAD_DIR}/{current_user.id}_{file.filename}"
+    
+    # Reset cursor after reading
+    await file.seek(0)
+    
+    with open(file_location, "wb+") as file_object:
+        shutil.copyfileobj(file.file, file_object)
+        
+    # Save to DB
     resume = current_user.resume
     if not resume:
-        resume = Resume(user_id=current_user.id, file_path=file.filename, raw_text=text)
+        resume = Resume(user_id=current_user.id, file_path=file_location, raw_text=text)
         db.add(resume)
     else:
-        resume.file_path = file.filename
+        resume.file_path = file_location
         resume.raw_text = text
     
     db.commit()
     db.refresh(resume)
     
     return {"filename": file.filename, "extracted_text": text}
+
+from fastapi.responses import FileResponse
+
+@router.get("/download")
+def download_resume(
+    current_user: User = Depends(deps.get_current_user),
+):
+    """
+    Download the current user's resume.
+    """
+    if not current_user.resume or not current_user.resume.file_path:
+        raise HTTPException(status_code=404, detail="Resume not found")
+        
+    image_path = current_user.resume.file_path
+    
+    import os
+    if not os.path.exists(image_path):
+        raise HTTPException(status_code=404, detail="Resume file not found on server")
+        
+    return FileResponse(image_path, filename=os.path.basename(image_path))

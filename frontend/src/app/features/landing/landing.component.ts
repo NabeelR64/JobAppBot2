@@ -14,18 +14,6 @@ export class LandingComponent {
   constructor(private authService: AuthService, private router: Router) { }
 
   signInWithGoogle() {
-    // In a real app, this would trigger the Google Sign-In popup
-    // For MVP UI flow, we'll simulate a successful login
-    console.log('Sign in with Google clicked');
-    this.authService.mockLogin().subscribe({
-      next: (res) => {
-        console.log('Logged in', res);
-        // Store token
-        localStorage.setItem('token', res.access_token);
-        // Redirect to onboarding
-        this.router.navigate(['/onboarding']);
-      },
-      error: (err) => console.error('Login failed', err)
-    });
+    alert("Please use the 'Sign In with Google' button in the top right navigation bar.");
   }
 }

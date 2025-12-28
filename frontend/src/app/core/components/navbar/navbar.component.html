@@ -4,5 +4,17 @@
         <a routerLink="/swipe" routerLinkActive="active">Swipe</a>
         <a routerLink="/dashboard" routerLinkActive="active">Applications</a>
         <a routerLink="/onboarding" routerLinkActive="active">Profile</a>
+
+        <div class="auth-section">
+            <ng-container *ngIf="authService.isAuthenticated(); else loginBtn">
+                <span class="username" *ngIf="authService.currentUser() as user">
+                    {{ user.profile?.name || user.email }}
+                </span>
+                <button (click)="logout()" class="btn-logout">Logout</button>
+            </ng-container>
+            <ng-template #loginBtn>
+                <div id="google-btn"></div>
+            </ng-template>
+        </div>
     </div>
 </nav>

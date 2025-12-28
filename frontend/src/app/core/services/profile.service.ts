@@ -20,7 +20,14 @@ export class ProfileService {
         return this.http.put(`${this.apiUrl}/users/me/profile`, profileData);
     }
 
+
     getProfile(): Observable<any> {
         return this.http.get(`${this.apiUrl}/users/me`);
+    }
+
+    downloadResume(): Observable<Blob> {
+        return this.http.get(`${this.apiUrl}/resume/download`, {
+            responseType: 'blob'
+        });
     }
 }

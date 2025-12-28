@@ -45,6 +45,7 @@ class UserProfile(Base):
     desired_roles = Column(JSON)
     remote_preference = Column(Enum(RemotePreference))
     seniority_preference = Column(String)
+    company_size_prefs = Column(JSON)
     disallowed_categories = Column(JSON)
     phone_number = Column(String)
 

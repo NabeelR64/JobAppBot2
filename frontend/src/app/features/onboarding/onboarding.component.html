@@ -1,42 +1,106 @@
 <div class="onboarding-container">
     <div class="card onboarding-card">
-        <h2>Setup Your Profile</h2>
+        <h2 *ngIf="!viewMode && step === 1">Setup Your Profile</h2>
+        <h2 *ngIf="!viewMode && step === 2">Edit Profile</h2>
+        <h2 *ngIf="viewMode">My Profile</h2>
 
-        <div *ngIf="step === 1">
+        <!-- Step 1: Upload (Only if not in view mode and step 1) -->
+        <div *ngIf="step === 1 && !viewMode">
             <h3>Step 1: Upload Resume</h3>
             <p>Upload your resume (PDF or DOCX) to get started.</p>
             <input type="file" (change)="onFileSelected($event)" accept=".pdf,.docx">
             <button class="btn-primary" (click)="uploadResume()" [disabled]="!resumeFile">Next</button>
         </div>
 
+        <!-- Step 2: Profile Details -->
         <div *ngIf="step === 2">
-            <h3>Step 2: Preferences</h3>
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" [(ngModel)]="profile.name">
+
+            <!-- View Mode -->
+            <div *ngIf="viewMode" class="profile-view">
+                <div class="view-group">
+                    <label>Name</label>
+                    <p>{{ profile.name || 'Not set' }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Email</label>
+                    <p>{{ authService.currentUser()?.email }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Phone</label>
+                    <p>{{ profile.phone_number || 'Not set' }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Desired Roles</label>
+                    <p>{{ profile.desired_roles || 'Not set' }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Min Salary</label>
+                    <p>{{ profile.desired_salary_min | currency }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Locations</label>
+                    <p>{{ profile.desired_locations || 'Not set' }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Remote Preference</label>
+                    <p>{{ profile.remote_preference }}</p>
+                </div>
+
+                <div class="actions">
+                    <button class="btn-secondary" (click)="toggleEdit()">Edit Profile</button>
+                    <button class="btn-secondary" (click)="downloadResume()">Download Resume</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Desired Roles (comma separated)</label>
-                <input type="text" [(ngModel)]="profile.desired_roles"
-                    placeholder="e.g. Backend Engineer, Data Scientist">
+
+            <!-- Edit Mode -->
+            <div *ngIf="!viewMode" class="profile-edit">
+                <h3>Preferences</h3>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" [(ngModel)]="profile.name">
+                </div>
+                <div class="form-group">
+                    <label>Desired Roles (comma separated)</label>
+                    <input type="text" [(ngModel)]="profile.desired_roles"
+                        placeholder="e.g. Backend Engineer, Data Scientist">
+                </div>
+                <div class="form-group">
+                    <label>Desired Locations (comma separated)</label>
+                    <input type="text" [(ngModel)]="profile.desired_locations" placeholder="e.g. New York, Remote">
+                </div>
+                <div class="form-group">
+                    <label>Min Salary</label>
+                    <input type="number" [(ngModel)]="profile.desired_salary_min">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" [(ngModel)]="profile.phone_number">
+                </div>
+                <div class="form-group">
+                    <label>Seniority (e.g. Senior, Staff)</label>
+                    <input type="text" [(ngModel)]="profile.seniority_preference">
+                </div>
+                <div class="form-group">
+                    <label>Company Size Prefs (comma separated)</label>
+                    <input type="text" [(ngModel)]="profile.company_size_prefs" placeholder="e.g. Startup, Enterprise">
+                </div>
+                <div class="form-group">
+                    <label>Disallowed Categories (comma separated)</label>
+                    <input type="text" [(ngModel)]="profile.disallowed_categories" placeholder="e.g. Gambling, Crypto">
+                </div>
+                <div class="form-group">
+                    <label>Remote Preference</label>
+                    <select [(ngModel)]="profile.remote_preference">
+                        <option value="REMOTE">Remote</option>
+                        <option value="HYBRID">Hybrid</option>
+                        <option value="ON_SITE">On-site</option>
+                    </select>
+                </div>
+                <div class="actions">
+                    <button class="btn-primary" (click)="submitProfile()">Save</button>
+                    <button *ngIf="originalProfile" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Desired Locations (comma separated)</label>
-                <input type="text" [(ngModel)]="profile.desired_locations" placeholder="e.g. New York, Remote">
-            </div>
-            <div class="form-group">
-                <label>Min Salary</label>
-                <input type="number" [(ngModel)]="profile.desired_salary_min">
-            </div>
-            <div class="form-group">
-                <label>Remote Preference</label>
-                <select [(ngModel)]="profile.remote_preference">
-                    <option value="REMOTE">Remote</option>
-                    <option value="HYBRID">Hybrid</option>
-                    <option value="ON_SITE">On-site</option>
-                </select>
-            </div>
-            <button class="btn-primary" (click)="submitProfile()">Finish</button>
         </div>
     </div>
 </div>
