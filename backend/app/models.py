@@ -48,6 +48,14 @@ class UserProfile(Base):
     company_size_prefs = Column(JSON)
     disallowed_categories = Column(JSON)
     phone_number = Column(String)
+    # New fields
+    region = Column(String)
+    location = Column(String)
+    address = Column(String)
+    field_of_work = Column(String)
+    experience = Column(JSON)
+    education = Column(JSON)
+    age = Column(Integer)
 
     user = relationship("User", back_populates="profile")
 

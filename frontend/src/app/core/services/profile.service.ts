@@ -20,6 +20,10 @@ export class ProfileService {
         return this.http.put(`${this.apiUrl}/users/me/profile`, profileData);
     }
 
+    deleteAccount(): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/users/me`);
+    }
+
 
     getProfile(): Observable<any> {
         return this.http.get(`${this.apiUrl}/users/me`);

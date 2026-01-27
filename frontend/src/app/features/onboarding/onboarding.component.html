@@ -1,15 +1,38 @@
 <div class="onboarding-container">
     <div class="card onboarding-card">
-        <h2 *ngIf="!viewMode && step === 1">Setup Your Profile</h2>
+        <h2 *ngIf="!viewMode && step === 0">Welcome! basic info</h2>
+        <h2 *ngIf="!viewMode && step === 1">Upload Resume</h2>
         <h2 *ngIf="!viewMode && step === 2">Edit Profile</h2>
         <h2 *ngIf="viewMode">My Profile</h2>
+
+        <!-- Step 0: Basic Info -->
+        <div *ngIf="step === 0">
+            <h3>Step 0: Let's get to know you</h3>
+            <p>Please provide your basic contact details.</p>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" [(ngModel)]="profile.name" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label>Email (read-only)</label>
+                <input type="email" [value]="authService.currentUser()?.email" disabled>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" [(ngModel)]="profile.phone_number" placeholder="(555) 123-4567">
+            </div>
+            <button class="btn-primary" (click)="nextStep()"
+                [disabled]="!profile.name || !profile.phone_number">Next</button>
+        </div>
+
 
         <!-- Step 1: Upload (Only if not in view mode and step 1) -->
         <div *ngIf="step === 1 && !viewMode">
             <h3>Step 1: Upload Resume</h3>
-            <p>Upload your resume (PDF or DOCX) to get started.</p>
+            <p>Upload your resume (PDF or DOCX) to help us fill out your profile.</p>
             <input type="file" (change)="onFileSelected($event)" accept=".pdf,.docx">
             <button class="btn-primary" (click)="uploadResume()" [disabled]="!resumeFile">Next</button>
+            <button class="btn-secondary" (click)="step = 2">Skip Upload</button>
         </div>
 
         <!-- Step 2: Profile Details -->
@@ -45,10 +68,67 @@
                     <label>Remote Preference</label>
                     <p>{{ profile.remote_preference }}</p>
                 </div>
+                <div class="view-group">
+                    <label>Age</label>
+                    <p>{{ profile.age || 'Not set' }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Field of Work</label>
+                    <p>{{ profile.field_of_work || 'Not set' }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Region</label>
+                    <p>{{ profile.region || 'Not set' }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Location</label>
+                    <p>{{ profile.location || 'Not set' }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Address</label>
+                    <p>{{ profile.address || 'Not set' }}</p>
+                </div>
+                <div class="view-group">
+                    <label>Experience</label>
+                    <div *ngIf="profile.experience?.length; else noExp">
+                        <div *ngFor="let exp of profile.experience" class="view-card">
+                            <strong>{{ exp.company }}</strong> - {{ exp.title }}
+                            <br>
+                            <small>{{ exp.years }}</small>
+                            <p>{{ exp.description }}</p>
+                        </div>
+                    </div>
+                    <ng-template #noExp>
+                        <p>Not set</p>
+                    </ng-template>
+                </div>
+                <div class="view-group">
+                    <label>Education</label>
+                    <div *ngIf="profile.education?.length; else noEdu">
+                        <div *ngFor="let edu of profile.education" class="view-card">
+                            <strong>{{ edu.school }}</strong> - {{ edu.degree }}
+                            <br>
+                            <small>{{ edu.years }}</small>
+                        </div>
+                    </div>
+                    <ng-template #noEdu>
+                        <p>Not set</p>
+                    </ng-template>
+                </div>
 
                 <div class="actions">
                     <button class="btn-secondary" (click)="toggleEdit()">Edit Profile</button>
-                    <button class="btn-secondary" (click)="downloadResume()">Download Resume</button>
+                    <button class="btn-secondary" (click)="toggleResumePreview()">
+                        {{ showResumePreview ? 'Close Preview' : 'View Resume' }}
+                    </button>
+                    <button class="btn-danger" (click)="deleteAccount()"
+                        style="background-color: #dc3545; color: white; margin-left: 10px;">Delete Account</button>
+                </div>
+
+                <!-- Resume Preview -->
+                <div *ngIf="showResumePreview" class="resume-preview-container">
+                    <iframe [src]="resumePreviewUrl" type="application/pdf" width="100%" height="600px">
+                    </iframe>
                 </div>
             </div>
 
@@ -96,6 +176,75 @@
                         <option value="ON_SITE">On-site</option>
                     </select>
                 </div>
+                <!-- New Fields -->
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" [(ngModel)]="profile.age">
+                </div>
+                <div class="form-group">
+                    <label>Field of Work</label>
+                    <input type="text" [(ngModel)]="profile.field_of_work">
+                </div>
+                <div class="form-group">
+                    <label>Region</label>
+                    <input type="text" [(ngModel)]="profile.region">
+                </div>
+                <div class="form-group">
+                    <label>Location (City/State)</label>
+                    <input type="text" [(ngModel)]="profile.location">
+                </div>
+                <div class="form-group">
+                    <label>Full Address</label>
+                    <input type="text" [(ngModel)]="profile.address">
+                </div>
+
+                <!-- Experience Section -->
+                <div class="form-group section-group">
+                    <div class="section-header">
+                        <h3>Experience</h3>
+                        <button class="btn-small" (click)="addExperience()">+ Add</button>
+                    </div>
+                    <div *ngFor="let exp of profile.experience; let i = index" class="card-item">
+                        <div class="row">
+                            <input placeholder="Company" [(ngModel)]="exp.company">
+                            <input placeholder="Title" [(ngModel)]="exp.title">
+                        </div>
+                        <div class="row">
+                            <input placeholder="Years (e.g. 2020-2022)" [(ngModel)]="exp.years">
+                            <button class="btn-icon" (click)="removeExperience(i)">🗑️</button>
+                        </div>
+                        <textarea placeholder="Description" [(ngModel)]="exp.description" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Education Section -->
+                <div class="form-group section-group">
+                    <div class="section-header">
+                        <h3>Education</h3>
+                        <button class="btn-small" (click)="addEducation()">+ Add</button>
+                    </div>
+                    <div *ngFor="let edu of profile.education; let i = index" class="card-item">
+                        <div class="row">
+                            <input placeholder="School" [(ngModel)]="edu.school">
+                            <input placeholder="Degree/Major" [(ngModel)]="edu.degree">
+                        </div>
+                        <div class="row">
+                            <input placeholder="Years" [(ngModel)]="edu.years">
+                            <button class="btn-icon" (click)="removeEducation(i)">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resume Management in Edit Mode -->
+                <div class="form-group">
+                    <label>Resume</label>
+                    <div class="resume-actions">
+                        <input type="file" (change)="onFileSelected($event)" accept=".pdf,.docx">
+                        <button class="btn-secondary" (click)="uploadResume()" [disabled]="!resumeFile">Upload
+                            New</button>
+                    </div>
+                </div>
+
                 <div class="actions">
                     <button class="btn-primary" (click)="submitProfile()">Save</button>
                     <button *ngIf="originalProfile" class="btn-secondary" (click)="cancelEdit()">Cancel</button>

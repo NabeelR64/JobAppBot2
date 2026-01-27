@@ -13,6 +13,15 @@ class UserProfileBase(BaseModel):
     company_size_prefs: Optional[List[str]] = []
     disallowed_categories: Optional[List[str]] = []
     phone_number: Optional[str] = None
+    
+    # New fields
+    region: Optional[str] = None
+    location: Optional[str] = None
+    address: Optional[str] = None
+    field_of_work: Optional[str] = None
+    experience: Optional[List[dict]] = [] # List of experience objects
+    education: Optional[List[dict]] = [] # List of education objects
+    age: Optional[int] = None
 
 class UserProfileCreate(UserProfileBase):
     pass

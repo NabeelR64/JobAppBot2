@@ -7,10 +7,15 @@
 
         <div class="auth-section">
             <ng-container *ngIf="authService.isAuthenticated(); else loginBtn">
-                <span class="username" *ngIf="authService.currentUser() as user">
-                    {{ user.profile?.name || user.email }}
-                </span>
-                <button (click)="logout()" class="btn-logout">Logout</button>
+                <div class="user-dropdown" (click)="toggleDropdown()">
+                    <span class="username" *ngIf="authService.currentUser() as user">
+                        {{ user.profile?.name || user.email }} ▼
+                    </span>
+                    <div class="dropdown-content" *ngIf="showDropdown">
+                        <a routerLink="/onboarding" (click)="showDropdown = false">Edit Profile</a>
+                        <a (click)="logout()">Logout</a>
+                    </div>
+                </div>
             </ng-container>
             <ng-template #loginBtn>
                 <div id="google-btn"></div>

@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    THEIRSTACK_API_KEY: Optional[str] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuYWJkdWRlNjRAZ21haWwuY29tIiwicGVybWlzc2lvbnMiOiJ1c2VyIiwiY3JlYXRlZF9hdCI6IjIwMjYtMDEtMjdUMDY6NTY6MDAuMzMxNTM4KzAwOjAwIn0.pLT63XlL3w2AOqvVgAeEDv0jtqLCCCP6MiUImjzPvvo"
 
     @property
     def database_url(self) -> str:

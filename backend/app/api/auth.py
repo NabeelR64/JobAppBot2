@@ -39,8 +39,7 @@ def login_google(
         # Create new user
         user = User(email=email, google_sub=google_sub)
         db.add(user)
-        db.commit()
-        db.refresh(user)
+        db.flush() # Flush to get the ID
         
         # Create empty profile
         profile = UserProfile(user_id=user.id, name=name)

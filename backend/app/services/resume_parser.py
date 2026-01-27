@@ -15,3 +15,31 @@ def extract_text_from_file(file_content: bytes, filename: str) -> str:
         return "Extracted text from DOCX: " + filename
     else:
         return "Unsupported file format"
+
+import re
+
+def parse_resume_text(text: str) -> dict:
+    """
+    Parse text to extract structured data.
+    """
+    data = {}
+    
+    # Extract Email
+    email_match = re.search(r'[\w\.-]+@[\w\.-]+\.\w+', text)
+    if email_match:
+        data['email'] = email_match.group(0)
+        
+    # Extract Phone (simple regex, can be improved)
+    phone_match = re.search(r'(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}', text)
+    if phone_match:
+        data['phone_number'] = phone_match.group(0)
+        
+    # Heuristic for Name (very basic, assumes name is at top)
+    lines = [line.strip() for line in text.split('\n') if line.strip()]
+    if lines:
+        # Take the first line as name if it's short enough logic
+        first_line = lines[0]
+        if len(first_line.split()) <= 4:
+            data['name'] = first_line
+            
+    return data

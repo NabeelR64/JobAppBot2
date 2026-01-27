@@ -1,5 +1,10 @@
 <div class="dashboard-container">
-    <h2>My Applications</h2>
+    <div class="header-actions"
+        style="display: flex; justify-content: space-between; align-items: center; marginBottom: 20px;">
+        <h2>My Applications</h2>
+        <button class="btn-danger" (click)="deleteAccount()" style="background-color: #dc3545; color: white;">Delete
+            Account</button>
+    </div>
     <div class="table-responsive">
         <table class="table">
             <thead>

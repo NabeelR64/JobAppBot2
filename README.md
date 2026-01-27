@@ -525,6 +525,8 @@ Design the backend and API in a modular way. At a minimum implement:
 | 2025-12-28 | Consolidate Documentation | Combined `README.md`, `frontend/README.md`, `future_work.md`, and `main_prompt.md` into a single `README.md` to improve navigability. Added a Table of Contents. |
 | 2025-12-28 | Profile & Resume Refactor | Refactored `OnboardingComponent` to support View/Edit modes. Added `Resume` backend schema and endpoints for upload/download. Enabled persistent profile viewing and resume downloading. |
 | 2025-12-28 | Update .gitignore | Updated `.gitignore` to include `backend/uploads`, Python/backend ignores, Node/frontend ignores, and secrets/config files. |
+| 2026-01-26 | Persistent Profiles & Auth | Implemented persistent storage for user profiles with extended fields (Address, Experience, Education, etc.). Consolidated Frontend Authentication service. Updated Onboarding flow to force profile completion. |
+| 2026-01-26 | Profile Enhancements | Added Resume upload/view controls and structured form sections for Experience and Education to the Profile page. |
 
 ## License
 

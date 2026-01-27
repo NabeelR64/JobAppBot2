@@ -50,7 +50,13 @@ async def upload_resume(
     db.commit()
     db.refresh(resume)
     
-    return {"filename": file.filename, "extracted_text": text}
+    parsed_data = resume_parser.parse_resume_text(text)
+    
+    return {
+        "filename": file.filename, 
+        "extracted_text": text,
+        "suggested_profile": parsed_data
+    }
 
 from fastapi.responses import FileResponse
 

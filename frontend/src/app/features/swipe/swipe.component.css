@@ -1,81 +1,149 @@
 .swipe-container {
-    min-height: 100vh;
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 2rem;
+    align-items: center;
+    padding: 20px;
+    height: 80vh;
 }
 
-.job-card {
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px;
-    height: 600px;
+    max-width: 600px;
+    height: 100%;
+    max-height: 750px;
     display: flex;
     flex-direction: column;
-    position: relative;
-    overflow: hidden;
 }
 
 .job-header {
-    margin-bottom: 1rem;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 .job-header h2 {
-    margin: 0;
-    color: var(--primary-dark);
+    margin: 0 0 10px;
+    color: #333;
+    font-size: 1.8rem;
 }
 
 .job-header h3 {
-    margin: 0.5rem 0 0;
-    font-weight: 500;
+    margin: 0;
     color: #666;
+    font-weight: 500;
+    font-size: 1.2rem;
 }
 
-.job-details {
+.job-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.meta-label {
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.meta-value {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.job-description-section {
     flex: 1;
     overflow-y: auto;
+    margin-bottom: 20px;
+    padding-right: 10px;
+    /* Space for scrollbar */
+}
+
+.job-description-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #444;
 }
 
 .description {
-    margin-top: 1rem;
-    line-height: 1.5;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.external-app-link {
+    margin-top: 15px;
+    text-align: center;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.external-app-link a {
+    color: #3f51b5;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.external-app-link a:hover {
+    text-decoration: underline;
 }
 
 .actions {
     display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
+    gap: 20px;
+    justify-content: center;
+    margin-top: auto;
 }
 
 .btn-swipe {
-    flex: 1;
-    padding: 1rem;
+    padding: 15px 0;
+    border-radius: 30px;
     border: none;
-    border-radius: 0.5rem;
-    font-weight: 600;
     font-size: 1.1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: transform 0.1s;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 45%;
+    /* Use percentage for responsiveness */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.btn-swipe:active {
-    transform: scale(0.95);
+.btn-swipe:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .btn-left {
-    background-color: #ff6b6b;
-    color: white;
-    margin-right: 0.5rem;
+    background: #fff;
+    border: 2px solid #dc3545;
+    color: #dc3545;
 }
 
 .btn-right {
-    background-color: #4ecdc4;
+    background: #28a745;
     color: white;
-    margin-left: 0.5rem;
+    border: 2px solid #28a745;
 }
 
 .no-jobs {
     text-align: center;
+    color: #666;
 }

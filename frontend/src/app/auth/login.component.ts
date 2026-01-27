@@ -1,18 +1,18 @@
 import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from './auth.service';
+import { AuthService } from '../core/services/auth.service';
 
 @Component({
-    selector: 'app-login',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="login-container">
       <h2>Sign in to Jinder</h2>
       <div #googleBtn></div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .login-container {
       display: flex;
       flex-direction: column;
@@ -28,17 +28,17 @@ import { AuthService } from './auth.service';
   `]
 })
 export class LoginComponent implements OnInit, AfterViewInit {
-    @ViewChild('googleBtn') googleBtn!: ElementRef;
+  @ViewChild('googleBtn') googleBtn!: ElementRef;
 
-    constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) { }
 
-    ngOnInit(): void {
-        // Initialize callback
-        this.authService.initializeGoogleSignIn();
-    }
+  ngOnInit(): void {
+    // Initialize callback
+    this.authService.initializeGoogleSignIn();
+  }
 
-    ngAfterViewInit(): void {
-        // Render button
-        this.authService.renderButton(this.googleBtn.nativeElement);
-    }
+  ngAfterViewInit(): void {
+    // Render button
+    this.authService.renderGoogleButton(this.googleBtn.nativeElement);
+  }
 }

@@ -14,6 +14,6 @@ export class LandingComponent {
   constructor(private authService: AuthService, private router: Router) { }
 
   signInWithGoogle() {
-    alert("Please use the 'Sign In with Google' button in the top right navigation bar.");
+    this.router.navigate(['/login']);
   }
 }

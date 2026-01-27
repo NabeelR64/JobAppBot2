@@ -4,15 +4,37 @@
             <h2>{{ currentJob.title }}</h2>
             <h3>{{ currentJob.company_name }}</h3>
         </div>
-        <div class="job-details">
-            <p><strong>Location:</strong> {{ currentJob.location }}</p>
-            <p><strong>Salary:</strong> {{ currentJob.salary_range }}</p>
-            <p><strong>Type:</strong> {{ currentJob.employment_type }}</p>
-            <p class="description">{{ currentJob.description }}</p>
+
+        <div class="job-meta-grid">
+            <div class="meta-item">
+                <span class="meta-label">Location</span>
+                <span class="meta-value">{{ currentJob.location || 'Not specified' }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Salary</span>
+                <span class="meta-value">{{ currentJob.salary_range || 'Not specified' }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Type</span>
+                <span class="meta-value">{{ currentJob.employment_type || 'Full-time' }}</span>
+            </div>
+            <!-- Placeholder for experience if we parse it later -->
+            <div class="meta-item">
+                <span class="meta-label">Experience</span>
+                <span class="meta-value">Not specified</span>
+            </div>
+        </div>
+
+        <div class="job-description-section">
+            <h4>Description</h4>
+            <p class="description">{{ truncatedDescription }}</p>
+            <div *ngIf="currentJob.url" class="external-app-link">
+                <a [href]="currentJob.url" target="_blank" rel="noopener noreferrer">View Full Job Post ↗</a>
+            </div>
         </div>
         <div class="actions">
             <button class="btn-swipe btn-left" (click)="swipe('LEFT')">Skip</button>
-            <button class="btn-swipe btn-right" (click)="swipe('RIGHT')">Apply</button>
+            <button class="btn-swipe btn-right" (click)="swipe('RIGHT')">Apply & Next</button>
         </div>
     </div>
 

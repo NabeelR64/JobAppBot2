@@ -37,9 +37,11 @@ def get_recommendations(
     
     jobs = db.query(JobPosting).filter(JobPosting.id.notin_(swiped_ids)).offset(skip).limit(limit).all()
     
-    # If no jobs, trigger ingestion and try again (simple hack for MVP)
+    # If no jobs, try fetching fresh jobs specifically for this user's preferences
     if not jobs:
-        job_ingestion.ingest_jobs(db)
+        # job_ingestion.ingest_jobs(db) # Old generic way
+        job_ingestion.fetch_jobs_for_user(db, current_user)
+        # Query again
         jobs = db.query(JobPosting).filter(JobPosting.id.notin_(swiped_ids)).offset(skip).limit(limit).all()
         
     return jobs

@@ -52,4 +52,10 @@ export class SwipeComponent implements OnInit {
       error: (err) => console.error('Swipe failed', err)
     });
   }
+
+  get truncatedDescription(): string {
+    if (!this.currentJob?.description) return '';
+    const desc = this.currentJob.description;
+    return desc.length > 300 ? desc.substring(0, 300) + '...' : desc;
+  }
 }
