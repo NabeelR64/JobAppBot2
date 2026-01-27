@@ -78,7 +78,7 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 This section outlines the roadmap for moving Jinder from MVP to a production-ready application. Each section includes a detailed prompt that can be fed to an AI agent to execute the task.
 
-### 1. Fully Integrate Google OAuth
+### 1. Fully Integrate Google OAuth (Completed)
 
 **Current Status:** The MVP uses a mock login flow on the frontend and a bypassed dependency on the backend.
 **Goal:** Implement real Google Sign-In, verify tokens on the backend, and create/update users securely.
