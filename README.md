@@ -110,12 +110,16 @@ Deliverables:
 - Verified login flow.
 ```
 
-### 2. Fully Integrate Job Search API
+### 2. Fully Integrate Job Search API (Completed)
 
-**Current Status:** The `job_ingestion.py` service generates mock job data.
-**Goal:** Integrate a real job search API (e.g., Indeed, LinkedIn, or a rapidapi aggregator) to fetch real listings.
+**Current Status:** **DONE.** The application now integrates with the **TheirStack API** to fetch real job listings.
+**Implementation Details:**
+- `TheirStackService` queries for jobs matching the user's "Desired Roles" and "Desired Locations".
+- Jobs are automatically ingested when recommendations allow.
+- Duplicate detection is implemented via `external_id`.
 
-#### Agent Prompt
+#### Agent Prompt (Reference)
+*This task has been completed.*
 ```text
 Task: Integrate Real Job Search API
 
@@ -527,7 +531,12 @@ Design the backend and API in a modular way. At a minimum implement:
 | 2025-12-28 | Update .gitignore | Updated `.gitignore` to include `backend/uploads`, Python/backend ignores, Node/frontend ignores, and secrets/config files. |
 | 2026-01-26 | Persistent Profiles & Auth | Implemented persistent storage for user profiles with extended fields (Address, Experience, Education, etc.). Consolidated Frontend Authentication service. Updated Onboarding flow to force profile completion. |
 | 2026-01-26 | Profile Enhancements | Added Resume upload/view controls and structured form sections for Experience and Education to the Profile page. |
+| 2026-01-27 | Integration & UX Polish | **TheirStack Integration**: Integrated external job search API to fetch real jobs tailored to user profile. <br> **Account Deletion**: Added comprehensive account deletion (cascades to all data). <br> **UX**: Improved Swipe card layout with badges, truncated descriptions, and external apply links. Added user dropdown in navbar. |
 
 ## License
 
 Proprietary.
+
+## Contact
+
+Nabeel Rahman - [nabeel.a.rahman64@gmail.com](mailto:nabeel.a.rahman64@gmail.com)
