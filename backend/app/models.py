@@ -66,7 +66,7 @@ class Resume(Base):
     user_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
     file_path = Column(String, nullable=False)
     raw_text = Column(Text)
-    # embedding_vector = Column(Vector(1536)) # Requires pgvector
+    embedding_vector = Column(JSON)  # Stores 1536-dim float array as JSON (migrate to pgvector Vector(1536) with Postgres)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="resume")

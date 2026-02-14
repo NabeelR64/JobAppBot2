@@ -1,12 +1,22 @@
 from typing import Any
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.api import deps
 from app.models import User, Resume
-from app.services import resume_parser
+from app.services import resume_parser, embedding
+
+import os
+import shutil
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+UPLOAD_DIR = "uploads"
+
 
 @router.post("/upload")
 async def upload_resume(
@@ -15,50 +25,60 @@ async def upload_resume(
     current_user: User = Depends(deps.get_current_user),
 ) -> Any:
     """
-    Upload a resume.
+    Upload a resume. Extracts text from PDF/DOCX, generates an embedding vector,
+    and parses structured data (name, email, phone).
     """
     if not file.filename.endswith((".pdf", ".docx")):
         raise HTTPException(status_code=400, detail="Invalid file format. Only PDF and DOCX are supported.")
-    
+
     content = await file.read()
+
+    # Extract real text from the file
     text = resume_parser.extract_text_from_file(content, file.filename)
-    
+    if not text:
+        logger.warning(f"No text could be extracted from {file.filename}")
+
+    # Generate embedding vector
+    embedding_vector = embedding.generate_embedding(text) if text else []
 
     # Save file to disk
-    import os
-    import shutil
-    
-    UPLOAD_DIR = "uploads"
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     file_location = f"{UPLOAD_DIR}/{current_user.id}_{file.filename}"
-    
+
     # Reset cursor after reading
     await file.seek(0)
-    
+
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
-        
+
     # Save to DB
     resume = current_user.resume
     if not resume:
-        resume = Resume(user_id=current_user.id, file_path=file_location, raw_text=text)
+        resume = Resume(
+            user_id=current_user.id,
+            file_path=file_location,
+            raw_text=text,
+            embedding_vector=embedding_vector if embedding_vector else None
+        )
         db.add(resume)
     else:
         resume.file_path = file_location
         resume.raw_text = text
-    
+        resume.embedding_vector = embedding_vector if embedding_vector else None
+
     db.commit()
     db.refresh(resume)
-    
-    parsed_data = resume_parser.parse_resume_text(text)
-    
+
+    # Parse structured data from the extracted text
+    parsed_data = resume_parser.parse_resume_text(text) if text else {}
+
     return {
-        "filename": file.filename, 
+        "filename": file.filename,
         "extracted_text": text,
-        "suggested_profile": parsed_data
+        "suggested_profile": parsed_data,
+        "embedding_generated": bool(embedding_vector)
     }
 
-from fastapi.responses import FileResponse
 
 @router.get("/download")
 def download_resume(
@@ -69,11 +89,10 @@ def download_resume(
     """
     if not current_user.resume or not current_user.resume.file_path:
         raise HTTPException(status_code=404, detail="Resume not found")
-        
-    image_path = current_user.resume.file_path
-    
-    import os
-    if not os.path.exists(image_path):
+
+    file_path = current_user.resume.file_path
+
+    if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="Resume file not found on server")
-        
-    return FileResponse(image_path, filename=os.path.basename(image_path))
+
+    return FileResponse(file_path, filename=os.path.basename(file_path))

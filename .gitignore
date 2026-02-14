@@ -41,3 +41,5 @@ typings/
 client_secret_*.json
 credentials.json
 token.json
+
+gemini/*

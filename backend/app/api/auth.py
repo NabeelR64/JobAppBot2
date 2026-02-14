@@ -41,9 +41,17 @@ def login_google(
         db.add(user)
         db.flush() # Flush to get the ID
         
-        # Create empty profile
-        profile = UserProfile(user_id=user.id, name=name)
-        db.add(profile)
+        # Check if profile already exists (handle potential orphaned records)
+        existing_profile = db.query(UserProfile).filter(UserProfile.user_id == user.id).first()
+        if not existing_profile:
+            # Create empty profile
+            profile = UserProfile(user_id=user.id, name=name)
+            db.add(profile)
+        else:
+            # Update name if likely the same user
+            if name:
+                existing_profile.name = name
+                
         db.commit()
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
