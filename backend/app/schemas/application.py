@@ -18,6 +18,7 @@ class Application(BaseModel):
     status: ApplicationStatus
     screenshot_path: Optional[str] = None
     cover_letter_text: Optional[str] = None
+    automation_state: Optional[dict] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
     events: List[ApplicationStatusEvent] = []

@@ -31,11 +31,12 @@ export class DashboardComponent implements OnInit {
   loading: boolean = true;
 
   private columnDefs: Omit<KanbanColumn, 'applications'>[] = [
-    { id: 'pending', title: 'Pending', icon: '🔄', statuses: ['PENDING_AUTOMATION', 'MANUAL_INTERVENTION_REQUIRED'], color: '#f59e0b' },
+    { id: 'pending', title: 'Pending', icon: '🔄', statuses: ['PENDING_AUTOMATION'], color: '#f59e0b' },
+    { id: 'needs_input', title: 'Needs Input', icon: '✍️', statuses: ['USER_INPUT_NEEDED'], color: '#f97316' },
     { id: 'applied', title: 'Applied', icon: '✅', statuses: ['APPLIED', 'EMAIL_CONFIRMATION_RECEIVED'], color: '#3b82f6' },
     { id: 'interview', title: 'Interview', icon: '💬', statuses: ['INTERVIEW_INVITED', 'FOLLOW_UP_RECEIVED'], color: '#8b5cf6' },
     { id: 'offer', title: 'Offer / Other', icon: '🎉', statuses: ['OTHER_UPDATE'], color: '#10b981' },
-    { id: 'rejected', title: 'Rejected', icon: '❌', statuses: ['REJECTED', 'FAILED'], color: '#ef4444' },
+    { id: 'rejected', title: 'Rejected', icon: '❌', statuses: ['REJECTED', 'FAILED', 'MANUAL_INTERVENTION_REQUIRED'], color: '#ef4444' },
   ];
 
   constructor(

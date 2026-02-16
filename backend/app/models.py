@@ -19,6 +19,7 @@ class ApplicationStatus(str, enum.Enum):
     OTHER_UPDATE = "OTHER_UPDATE"
     FAILED = "FAILED"
     MANUAL_INTERVENTION_REQUIRED = "MANUAL_INTERVENTION_REQUIRED"
+    USER_INPUT_NEEDED = "USER_INPUT_NEEDED"
 
 class User(Base):
     __tablename__ = "users"
@@ -110,6 +111,7 @@ class Application(Base):
     status = Column(Enum(ApplicationStatus), default=ApplicationStatus.PENDING_AUTOMATION)
     screenshot_path = Column(String)
     cover_letter_text = Column(Text)
+    automation_state = Column(JSON)  # Stores filled_fields, missing_fields, page_url for resume
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 

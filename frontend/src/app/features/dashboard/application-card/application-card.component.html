@@ -1,4 +1,4 @@
-<div class="app-card">
+<div class="app-card" [class.needs-input-card]="needsUserInput">
   <div class="card-header">
     <div class="company-avatar" [style.background-color]="avatarColor">
       {{ companyInitial }}
@@ -25,9 +25,38 @@
       →</a>
   </div>
 
+  <!-- User Input Form: shown when bot needs help filling fields -->
+  <div class="user-input-section" *ngIf="needsUserInput && missingFields.length > 0">
+    <div class="input-header">
+      <span class="input-icon">✍️</span>
+      <span class="input-title">Bot filled {{ filledFieldCount }} fields — need your help with {{ missingFields.length
+        }} more:</span>
+    </div>
+
+    <div class="input-fields">
+      <div class="input-field" *ngFor="let field of missingFields">
+        <label [for]="'field-' + application.id + '-' + field.key">{{ field.label }}</label>
+        <textarea *ngIf="field.type === 'textarea'" [id]="'field-' + application.id + '-' + field.key"
+          [(ngModel)]="userInputValues[field.key]" [placeholder]="'Enter ' + field.label" rows="2"></textarea>
+        <input *ngIf="field.type !== 'textarea' && field.type !== 'file'"
+          [id]="'field-' + application.id + '-' + field.key" [type]="field.type || 'text'"
+          [(ngModel)]="userInputValues[field.key]" [placeholder]="'Enter ' + field.label" />
+        <span *ngIf="field.type === 'file'" class="file-note">
+          Resume will be uploaded automatically
+        </span>
+      </div>
+    </div>
+
+    <button class="resume-btn" (click)="onProvideFields()" [disabled]="submittingFields">
+      <span *ngIf="!submittingFields">🚀 Resume Application</span>
+      <span *ngIf="submittingFields">⏳ Resuming...</span>
+    </button>
+  </div>
+
   <div class="card-actions">
     <select class="status-select" [value]="application.status" (change)="onStatusChange($event)">
       <option value="PENDING_AUTOMATION">Pending</option>
+      <option value="USER_INPUT_NEEDED">Needs Input</option>
       <option value="APPLIED">Applied</option>
       <option value="EMAIL_CONFIRMATION_RECEIVED">Confirmed</option>
       <option value="INTERVIEW_INVITED">Interview</option>

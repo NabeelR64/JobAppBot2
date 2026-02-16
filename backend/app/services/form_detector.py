@@ -158,3 +158,69 @@ def detect_apply_button(page: Page) -> Optional[Locator]:
 
     logger.warning("No apply/submit button found")
     return None
+
+
+def get_all_visible_inputs(page: Page, known_field_keys: set) -> list:
+    """
+    Find all visible input/textarea fields on the page that were NOT
+    already matched by our pattern-based detection.
+
+    Returns a list of dicts: [{ key, label, type }]
+    These represent fields the bot couldn't auto-fill.
+    """
+    unknown_fields = []
+    seen_keys = set()
+
+    for tag in ["input", "textarea"]:
+        try:
+            elements = page.locator(tag).all()
+            for el in elements:
+                try:
+                    if not el.is_visible():
+                        continue
+
+                    input_type = el.get_attribute("type") or "text"
+                    # Skip hidden, submit, button, checkbox, radio — not text fields
+                    if input_type in ("hidden", "submit", "button", "checkbox", "radio", "file"):
+                        continue
+
+                    name = el.get_attribute("name") or ""
+                    el_id = el.get_attribute("id") or ""
+                    placeholder = el.get_attribute("placeholder") or ""
+                    aria_label = el.get_attribute("aria-label") or ""
+
+                    key = name or el_id or placeholder.lower().replace(" ", "_")[:30]
+                    if not key or key in seen_keys:
+                        continue
+
+                    # Skip if this field was already matched by pattern detection
+                    if key in known_field_keys:
+                        continue
+
+                    # Try to find a label
+                    label = aria_label or placeholder
+                    if not label and el_id:
+                        try:
+                            label_el = page.locator(f'label[for="{el_id}"]').first
+                            if label_el.count() > 0:
+                                label = label_el.inner_text().strip()
+                        except Exception:
+                            pass
+                    if not label:
+                        label = name.replace("_", " ").replace("-", " ").title()
+
+                    field_type = "textarea" if tag == "textarea" else input_type
+                    unknown_fields.append({
+                        "key": key,
+                        "label": label,
+                        "type": field_type,
+                    })
+                    seen_keys.add(key)
+
+                except Exception:
+                    continue
+        except Exception:
+            continue
+
+    logger.info(f"Found {len(unknown_fields)} unknown fields: {[f['key'] for f in unknown_fields]}")
+    return unknown_fields

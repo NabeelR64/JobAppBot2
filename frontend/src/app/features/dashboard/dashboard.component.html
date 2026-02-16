@@ -46,7 +46,8 @@
                 [cdkDropListConnectedTo]="connectedDropLists" (cdkDropListDropped)="onDrop($event, column)">
 
                 <div *ngFor="let app of column.applications" cdkDrag class="drag-wrapper">
-                    <app-application-card [application]="app" (statusChanged)="onCardStatusChanged($event)">
+                    <app-application-card [application]="app" (statusChanged)="onCardStatusChanged($event)"
+                        (fieldsProvided)="loadApplications()">
                     </app-application-card>
                 </div>
 
