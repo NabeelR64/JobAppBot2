@@ -7,11 +7,8 @@
       <h4 class="job-title">{{ application.job_posting.title }}</h4>
       <p class="company-name">{{ application.job_posting.company_name }}</p>
     </div>
-    <a *ngIf="application.job_posting.url" 
-       [href]="application.job_posting.url" 
-       target="_blank" 
-       class="external-link"
-       title="View job posting">
+    <a *ngIf="application.job_posting.url" [href]="application.job_posting.url" target="_blank" class="external-link"
+      title="View job posting">
       ↗
     </a>
   </div>
@@ -21,10 +18,15 @@
     <span class="status-badge" [ngClass]="statusClass">{{ statusLabel }}</span>
   </div>
 
+  <div class="manual-warning" *ngIf="application.status === 'MANUAL_INTERVENTION_REQUIRED'">
+    <span class="warning-icon">⚠️</span>
+    <span>Needs manual application</span>
+    <a *ngIf="application.job_posting.url" [href]="application.job_posting.url" target="_blank" class="apply-link">Apply
+      →</a>
+  </div>
+
   <div class="card-actions">
-    <select class="status-select" 
-            [value]="application.status" 
-            (change)="onStatusChange($event)">
+    <select class="status-select" [value]="application.status" (change)="onStatusChange($event)">
       <option value="PENDING_AUTOMATION">Pending</option>
       <option value="APPLIED">Applied</option>
       <option value="EMAIL_CONFIRMATION_RECEIVED">Confirmed</option>
@@ -33,6 +35,7 @@
       <option value="OTHER_UPDATE">Other</option>
       <option value="REJECTED">Rejected</option>
       <option value="FAILED">Failed</option>
+      <option value="MANUAL_INTERVENTION_REQUIRED">Needs Action</option>
     </select>
   </div>
 </div>

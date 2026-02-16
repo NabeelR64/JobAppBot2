@@ -385,7 +385,7 @@ The current `resume_parser.py` returns a dummy string like "Extracted text from 
 
 ---
 
-### Goal 2 — Browser Automation for Auto-Apply (Playwright)
+### Goal 2 — Browser Automation for Auto-Apply (Playwright) (Completed)
 
 | Field | Details |
 |:---|:---|
@@ -726,6 +726,7 @@ Design the backend and API in a modular way. At a minimum implement:
 | 2026-02-13 | Phase 2 Roadmap | Added a comprehensive 3-week Phase 2 roadmap to `README.md` covering 6 goals: real resume parsing & AI cover letters, Playwright auto-apply, Kanban dashboard redesign, Gmail status tracking, daily swipe limits with analytics, and PostgreSQL migration with security hardening. |
 | 2026-02-13 | Goal 1: Resume Parsing & Cover Letters | **Resume Parser**: Rewrote `resume_parser.py` with real PDF (PyPDF2) and DOCX (python-docx) text extraction. <br> **Cover Letter**: Rewrote `cover_letter.py` to generate tailored letters via OpenAI GPT-4o-mini with graceful fallback. <br> **Embeddings**: Created `embedding.py` service using OpenAI `text-embedding-3-small` (1536-dim vectors stored as JSON in SQLite). <br> **Config**: Added `OPENAI_API_KEY` and `OPENAI_EMBEDDING_MODEL` settings; moved `THEIRSTACK_API_KEY` from hardcoded default to `.env`. |
 | 2026-02-15 | Goal 3: Dashboard Redesign (Kanban Board) | **Kanban Board**: Replaced flat HTML table with a 5-column Kanban board (Pending, Applied, Interview, Offer/Other, Rejected) using Angular CDK `DragDropModule`. <br> **Drag-and-Drop**: Cards can be dragged between columns to update status via new `PATCH /applications/{id}/status` endpoint. <br> **ApplicationCardComponent**: New reusable card with company avatar, status badge, date, external link, and manual status dropdown. <br> **Filtering & Sorting**: Search by company/role and toggle sort (newest first vs. alphabetical). <br> **Backend**: Added PATCH endpoint with ownership validation and `ApplicationStatusEvent` audit trail. |
+| 2026-02-15 | Goal 2: Browser Automation (Playwright) | **Automation Engine**: Rewrote `automation.py` with Playwright headless Chromium — navigates to job URLs, detects form fields, fills from user profile, uploads resume, captures screenshots. <br> **Form Detector**: Created `form_detector.py` with heuristic-based field detection (name, email, phone, resume upload, cover letter, LinkedIn, address) plus CAPTCHA and submit button detection. <br> **New Status**: Added `MANUAL_INTERVENTION_REQUIRED` to `ApplicationStatus` for CAPTCHAs, missing forms, and complex multi-step applications. <br> **Model Updates**: Added `screenshot_path` and `cover_letter_text` columns to `Application`. <br> **Dry Run Mode**: Default `DRY_RUN=True` fills forms without clicking Submit; set to `False` for production. <br> **Frontend**: Updated Kanban board and card component for new status with warning indicator and direct apply link. |
 
 ## License
 

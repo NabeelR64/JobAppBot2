@@ -16,6 +16,8 @@ class Application(BaseModel):
     id: int
     job_posting: JobPosting
     status: ApplicationStatus
+    screenshot_path: Optional[str] = None
+    cover_letter_text: Optional[str] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
     events: List[ApplicationStatusEvent] = []

@@ -35,7 +35,8 @@ export class ApplicationCardComponent {
             'REJECTED': 'Rejected',
             'FOLLOW_UP_RECEIVED': 'Follow-Up',
             'OTHER_UPDATE': 'Other',
-            'FAILED': 'Failed'
+            'FAILED': 'Failed',
+            'MANUAL_INTERVENTION_REQUIRED': 'Needs Action'
         };
         return labels[this.application?.status] || this.application?.status;
     }
