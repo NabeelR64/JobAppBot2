@@ -413,7 +413,7 @@ The current `automation.py` simply sleeps for 5 seconds and marks every applicat
 
 ---
 
-### Goal 3 — Dashboard Redesign (Kanban Board)
+### Goal 3 — Dashboard Redesign (Kanban Board) (Completed)
 
 | Field | Details |
 |:---|:---|
@@ -725,6 +725,7 @@ Design the backend and API in a modular way. At a minimum implement:
 | 2026-01-27 | Integration & UX Polish | **TheirStack Integration**: Integrated external job search API to fetch real jobs tailored to user profile. <br> **Account Deletion**: Added comprehensive account deletion (cascades to all data). <br> **UX**: Improved Swipe card layout with badges, truncated descriptions, and external apply links. Added user dropdown in navbar. |
 | 2026-02-13 | Phase 2 Roadmap | Added a comprehensive 3-week Phase 2 roadmap to `README.md` covering 6 goals: real resume parsing & AI cover letters, Playwright auto-apply, Kanban dashboard redesign, Gmail status tracking, daily swipe limits with analytics, and PostgreSQL migration with security hardening. |
 | 2026-02-13 | Goal 1: Resume Parsing & Cover Letters | **Resume Parser**: Rewrote `resume_parser.py` with real PDF (PyPDF2) and DOCX (python-docx) text extraction. <br> **Cover Letter**: Rewrote `cover_letter.py` to generate tailored letters via OpenAI GPT-4o-mini with graceful fallback. <br> **Embeddings**: Created `embedding.py` service using OpenAI `text-embedding-3-small` (1536-dim vectors stored as JSON in SQLite). <br> **Config**: Added `OPENAI_API_KEY` and `OPENAI_EMBEDDING_MODEL` settings; moved `THEIRSTACK_API_KEY` from hardcoded default to `.env`. |
+| 2026-02-15 | Goal 3: Dashboard Redesign (Kanban Board) | **Kanban Board**: Replaced flat HTML table with a 5-column Kanban board (Pending, Applied, Interview, Offer/Other, Rejected) using Angular CDK `DragDropModule`. <br> **Drag-and-Drop**: Cards can be dragged between columns to update status via new `PATCH /applications/{id}/status` endpoint. <br> **ApplicationCardComponent**: New reusable card with company avatar, status badge, date, external link, and manual status dropdown. <br> **Filtering & Sorting**: Search by company/role and toggle sort (newest first vs. alphabetical). <br> **Backend**: Added PATCH endpoint with ownership validation and `ApplicationStatusEvent` audit trail. |
 
 ## License
 

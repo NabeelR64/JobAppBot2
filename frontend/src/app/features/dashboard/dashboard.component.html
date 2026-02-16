@@ -1,35 +1,59 @@
 <div class="dashboard-container">
-    <div class="header-actions"
-        style="display: flex; justify-content: space-between; align-items: center; marginBottom: 20px;">
-        <h2>My Applications</h2>
-        <button class="btn-danger" (click)="deleteAccount()" style="background-color: #dc3545; color: white;">Delete
-            Account</button>
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="header-left">
+            <h1>My Applications</h1>
+            <span class="app-count" *ngIf="!loading">{{ totalApplications }} total</span>
+        </div>
+        <div class="header-actions">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Search company or role..." [(ngModel)]="searchQuery"
+                    (ngModelChange)="onSearchChange()" class="search-input" />
+            </div>
+            <button class="sort-btn" (click)="toggleSort()"
+                [title]="'Sort by ' + (sortMode === 'date' ? 'company name' : 'date')">
+                {{ sortMode === 'date' ? '📅 Newest' : '🔤 A–Z' }}
+            </button>
+            <button class="btn-danger" (click)="deleteAccount()">Delete Account</button>
+        </div>
     </div>
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Company</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Applied On</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let app of applications">
-                    <td>{{ app.job_posting.company_name }}</td>
-                    <td>{{ app.job_posting.title }}</td>
-                    <td>
-                        <span class="status-badge" [ngClass]="app.status.toLowerCase()">
-                            {{ app.status }}
-                        </span>
-                    </td>
-                    <td>{{ app.created_at | date }}</td>
-                </tr>
-                <tr *ngIf="applications.length === 0">
-                    <td colspan="4" class="text-center">No applications yet. Start swiping!</td>
-                </tr>
-            </tbody>
-        </table>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="loading">
+        <div class="spinner"></div>
+        <p>Loading applications...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading && totalApplications === 0">
+        <div class="empty-icon">📋</div>
+        <h3>No applications yet</h3>
+        <p>Start swiping on jobs to see your applications tracked here!</p>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="kanban-board" *ngIf="!loading && totalApplications > 0">
+        <div class="kanban-column" *ngFor="let column of columns">
+            <div class="column-header" [style.border-top-color]="column.color">
+                <span class="column-icon">{{ column.icon }}</span>
+                <span class="column-title">{{ column.title }}</span>
+                <span class="column-count" [style.background-color]="column.color">{{ column.applications.length
+                    }}</span>
+            </div>
+
+            <div class="column-body" cdkDropList [id]="column.id" [cdkDropListData]="column.applications"
+                [cdkDropListConnectedTo]="connectedDropLists" (cdkDropListDropped)="onDrop($event, column)">
+
+                <div *ngFor="let app of column.applications" cdkDrag class="drag-wrapper">
+                    <app-application-card [application]="app" (statusChanged)="onCardStatusChanged($event)">
+                    </app-application-card>
+                </div>
+
+                <div class="column-empty" *ngIf="column.applications.length === 0">
+                    <p>No applications</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

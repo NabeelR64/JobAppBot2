@@ -1,58 +1,316 @@
+/* ===== Dashboard Container ===== */
 .dashboard-container {
-    padding: 2rem;
-    max-width: 1000px;
-    margin: 0 auto;
+    padding: 1.5rem 2rem;
+    max-width: 100%;
+    min-height: calc(100vh - 80px);
 }
 
-h2 {
-    color: var(--primary-dark);
-    margin-bottom: 2rem;
+/* ===== Header ===== */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    box-shadow: var(--card-shadow);
+.header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
 }
 
-.table th,
-.table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+.header-left h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
 }
 
-.table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    color: #666;
-}
-
-.status-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 1rem;
+.app-count {
     font-size: 0.875rem;
+    color: #94a3b8;
     font-weight: 500;
 }
 
-.status-badge.applied {
-    background-color: #e3f2fd;
-    color: #1976d2;
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
-.status-badge.pending_automation {
-    background-color: #fff3e0;
-    color: #f57c00;
+.search-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0 0.75rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.status-badge.rejected {
-    background-color: #ffebee;
-    color: #c62828;
+.search-box:focus-within {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
-.text-center {
+.search-icon {
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    padding: 0.5rem 0;
+    font-size: 0.875rem;
+    font-family: inherit;
+    background: transparent;
+    width: 200px;
+}
+
+.sort-btn {
+    padding: 0.5rem 0.875rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    background: white;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.sort-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.btn-danger {
+    padding: 0.5rem 0.875rem;
+    border: 1px solid #fecaca;
+    border-radius: 0.5rem;
+    background: #fef2f2;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #dc2626;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.btn-danger:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+}
+
+/* ===== Loading State ===== */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: #94a3b8;
+}
+
+.spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 3px solid #e2e8f0;
+    border-top-color: #4f46e5;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===== Empty State ===== */
+.empty-state {
     text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    color: #1e293b;
+    margin: 0 0 0.5rem;
+}
+
+.empty-state p {
+    color: #94a3b8;
+    margin: 0;
+}
+
+/* ===== Kanban Board ===== */
+.kanban-board {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    min-height: 500px;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar styling */
+.kanban-board::-webkit-scrollbar {
+    height: 6px;
+}
+
+.kanban-board::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.kanban-board::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.kanban-board::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ===== Kanban Column ===== */
+.kanban-column {
+    min-width: 260px;
+    max-width: 300px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+}
+
+.column-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+    border-top: 3px solid;
+    border-radius: 0.75rem 0.75rem 0 0;
+    background: white;
+}
+
+.column-icon {
+    font-size: 1rem;
+}
+
+.column-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #334155;
+    flex: 1;
+}
+
+.column-count {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: white;
+    padding: 0.125rem 0.5rem;
+    border-radius: 1rem;
+    min-width: 1.25rem;
+    text-align: center;
+}
+
+/* ===== Column Body (Drop Zone) ===== */
+.column-body {
+    flex: 1;
+    padding: 0.5rem;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 240px);
+}
+
+.column-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.column-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+
+.column-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: 80px;
+}
+
+.column-empty p {
+    color: #cbd5e1;
+    font-size: 0.8125rem;
+    font-style: italic;
+}
+
+/* ===== CDK Drag and Drop ===== */
+.drag-wrapper {
+    transition: transform 0.1s ease;
+}
+
+.cdk-drag-preview {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-radius: 0.75rem;
+    opacity: 0.95;
+}
+
+.cdk-drag-placeholder {
+    background: #e0e7ff;
+    border: 2px dashed #818cf8;
+    border-radius: 0.75rem;
+    min-height: 80px;
+    opacity: 0.4;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list-dragging .drag-wrapper:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Highlight drop zone on drag over */
+.cdk-drop-list-receiving {
+    background: #f0f4ff;
+    border: 2px dashed #818cf8;
+    border-radius: 0 0 0.75rem 0.75rem;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-input {
+        width: 150px;
+    }
+
+    .kanban-column {
+        min-width: 240px;
+    }
 }

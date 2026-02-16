@@ -1,0 +1,38 @@
+<div class="app-card">
+  <div class="card-header">
+    <div class="company-avatar" [style.background-color]="avatarColor">
+      {{ companyInitial }}
+    </div>
+    <div class="card-info">
+      <h4 class="job-title">{{ application.job_posting.title }}</h4>
+      <p class="company-name">{{ application.job_posting.company_name }}</p>
+    </div>
+    <a *ngIf="application.job_posting.url" 
+       [href]="application.job_posting.url" 
+       target="_blank" 
+       class="external-link"
+       title="View job posting">
+      ↗
+    </a>
+  </div>
+
+  <div class="card-meta">
+    <span class="date">{{ application.created_at | date:'MMM d, y' }}</span>
+    <span class="status-badge" [ngClass]="statusClass">{{ statusLabel }}</span>
+  </div>
+
+  <div class="card-actions">
+    <select class="status-select" 
+            [value]="application.status" 
+            (change)="onStatusChange($event)">
+      <option value="PENDING_AUTOMATION">Pending</option>
+      <option value="APPLIED">Applied</option>
+      <option value="EMAIL_CONFIRMATION_RECEIVED">Confirmed</option>
+      <option value="INTERVIEW_INVITED">Interview</option>
+      <option value="FOLLOW_UP_RECEIVED">Follow-Up</option>
+      <option value="OTHER_UPDATE">Other</option>
+      <option value="REJECTED">Rejected</option>
+      <option value="FAILED">Failed</option>
+    </select>
+  </div>
+</div>
