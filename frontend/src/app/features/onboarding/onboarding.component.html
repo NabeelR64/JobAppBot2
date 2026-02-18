@@ -3,6 +3,7 @@
         <h2 *ngIf="!viewMode && step === 0">Welcome! basic info</h2>
         <h2 *ngIf="!viewMode && step === 1">Upload Resume</h2>
         <h2 *ngIf="!viewMode && step === 2">Edit Profile</h2>
+        <h2 *ngIf="!viewMode && step === 3">Connect Gmail</h2>
         <h2 *ngIf="viewMode">My Profile</h2>
 
         <!-- Step 0: Basic Info -->
@@ -121,6 +122,11 @@
                     <button class="btn-secondary" (click)="toggleResumePreview()">
                         {{ showResumePreview ? 'Close Preview' : 'View Resume' }}
                     </button>
+                    <button *ngIf="!gmailConnected" class="btn-gmail" (click)="connectGmail()" [disabled]="gmailConnecting">
+                        📧 Connect Gmail
+                    </button>
+                    <span *ngIf="gmailConnected" class="gmail-badge">✅ Gmail Connected</span>
+                    <button *ngIf="gmailConnected" class="btn-small btn-danger-small" (click)="disconnectGmail()">Disconnect</button>
                     <button class="btn-danger" (click)="deleteAccount()"
                         style="background-color: #dc3545; color: white; margin-left: 10px;">Delete Account</button>
                 </div>
@@ -249,6 +255,27 @@
                     <button class="btn-primary" (click)="submitProfile()">Save</button>
                     <button *ngIf="originalProfile" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Gmail Consent -->
+        <div *ngIf="step === 3 && !viewMode" class="gmail-step">
+            <div class="gmail-icon">📧</div>
+            <h3>Connect Your Gmail</h3>
+            <p class="gmail-desc">
+                Let Jinder automatically track your application statuses by reading recruiter emails.
+                We'll detect interview invites, rejections, and follow-ups — so your Kanban board stays up to date without lifting a finger.
+            </p>
+            <div class="gmail-privacy">
+                <span class="lock-icon">🔒</span>
+                <span><strong>Read-only access</strong> — we can only read emails, never send or delete. You can disconnect anytime.</span>
+            </div>
+            <div class="gmail-actions">
+                <button class="btn-gmail-connect" (click)="connectGmail()" [disabled]="gmailConnecting">
+                    <span *ngIf="!gmailConnecting">🔗 Connect Gmail</span>
+                    <span *ngIf="gmailConnecting">⏳ Connecting...</span>
+                </button>
+                <button class="btn-secondary" (click)="skipGmail()">Skip for now</button>
             </div>
         </div>
     </div>

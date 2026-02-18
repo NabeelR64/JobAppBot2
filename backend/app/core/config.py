@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     THEIRSTACK_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    GMAIL_REDIRECT_URI: str = "http://localhost:8000/api/v1/gmail/callback"
+    GMAIL_SCOPES: list[str] = ["https://www.googleapis.com/auth/gmail.readonly"]
 
     @property
     def database_url(self) -> str:

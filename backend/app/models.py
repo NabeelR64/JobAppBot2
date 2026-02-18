@@ -29,6 +29,8 @@ class User(Base):
     google_sub = Column(String, unique=True, index=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    gmail_refresh_token = Column(String)  # OAuth refresh token for Gmail API
+    gmail_connected_at = Column(DateTime(timezone=True))  # When user connected Gmail
 
     profile = relationship("UserProfile", back_populates="user", uselist=False)
     resume = relationship("Resume", back_populates="user", uselist=False)

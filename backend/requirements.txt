@@ -21,3 +21,4 @@ pgvector
 PyPDF2
 python-docx
 numpy
+apscheduler

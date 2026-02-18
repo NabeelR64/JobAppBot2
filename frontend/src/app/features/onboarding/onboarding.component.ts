@@ -1,10 +1,11 @@
 import { Component, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProfileService } from '../../core/services/profile.service';
 import { AuthService } from '../../core/services/auth.service';
+import { GmailService } from '../../core/services/gmail.service';
 
 @Component({
   selector: 'app-onboarding',
@@ -20,6 +21,8 @@ export class OnboardingComponent {
   resumeFile: File | null = null;
   resumePreviewUrl: SafeResourceUrl | null = null;
   showResumePreview = false;
+  gmailConnected = false;
+  gmailConnecting = false;
   profile = {
     name: '',
     phone_number: '',
@@ -47,9 +50,26 @@ export class OnboardingComponent {
   constructor(
     private profileService: ProfileService,
     private router: Router,
+    private route: ActivatedRoute,
     public authService: AuthService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private gmailService: GmailService
   ) {
+    // Check for Gmail callback query param
+    this.route.queryParams.subscribe(params => {
+      if (params['gmail'] === 'connected') {
+        this.gmailConnected = true;
+        this.step = 2;
+        this.viewMode = true;
+      }
+    });
+
+    // Check Gmail connection status on load
+    this.gmailService.getStatus().subscribe({
+      next: (status) => { this.gmailConnected = status.connected; },
+      error: () => { /* Not logged in yet, ignore */ }
+    });
+
     // Effect to fill profile if user loads
     effect(() => {
       const user = this.authService.currentUser();
@@ -152,7 +172,12 @@ export class OnboardingComponent {
     this.profileService.updateProfile(profileData).subscribe({
       next: (res) => {
         console.log('Profile updated', res);
-        this.viewMode = true;
+        if (!this.gmailConnected && !this.originalProfile) {
+          // First time completing profile — show Gmail step
+          this.step = 3;
+        } else {
+          this.viewMode = true;
+        }
         this.originalProfile = JSON.parse(JSON.stringify(this.profile)); // Deep copy
       },
       error: (err) => console.error('Update failed', err)
@@ -214,5 +239,34 @@ export class OnboardingComponent {
         }
       });
     }
+  }
+
+  connectGmail() {
+    this.gmailConnecting = true;
+    this.gmailService.connect().subscribe({
+      next: (res) => {
+        // Open OAuth URL — will redirect back to /onboarding?gmail=connected
+        window.location.href = res.auth_url;
+      },
+      error: (err) => {
+        console.error('Gmail connect failed', err);
+        this.gmailConnecting = false;
+        alert('Failed to start Gmail connection. Please try again.');
+      }
+    });
+  }
+
+  skipGmail() {
+    this.step = 2;
+    this.viewMode = true;
+  }
+
+  disconnectGmail() {
+    this.gmailService.disconnect().subscribe({
+      next: () => {
+        this.gmailConnected = false;
+      },
+      error: (err) => console.error('Gmail disconnect failed', err)
+    });
   }
 }
