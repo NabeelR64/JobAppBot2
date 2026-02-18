@@ -17,6 +17,12 @@ router = APIRouter()
 
 UPLOAD_DIR = "uploads"
 
+# Magic bytes for file type validation (prevents renamed malicious files)
+MAGIC_BYTES = {
+    ".pdf": b"%PDF",           # PDF header
+    ".docx": b"PK\x03\x04",   # DOCX is a ZIP archive
+}
+
 
 @router.post("/upload")
 async def upload_resume(
@@ -32,6 +38,15 @@ async def upload_resume(
         raise HTTPException(status_code=400, detail="Invalid file format. Only PDF and DOCX are supported.")
 
     content = await file.read()
+
+    # Magic byte validation — verify the file is genuinely what the extension claims
+    ext = os.path.splitext(file.filename)[1].lower()
+    expected_magic = MAGIC_BYTES.get(ext)
+    if expected_magic and not content[:len(expected_magic)] == expected_magic:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File content does not match {ext} format. The file may be corrupted or renamed."
+        )
 
     # Extract real text from the file
     text = resume_parser.extract_text_from_file(content, file.filename)

@@ -22,3 +22,5 @@ PyPDF2
 python-docx
 numpy
 apscheduler
+slowapi
+psycopg2-binary

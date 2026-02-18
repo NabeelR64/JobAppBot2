@@ -3,7 +3,8 @@ from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 
 connect_args = {}
-if "sqlite" in settings.database_url:
+# SQLite requires check_same_thread=False for FastAPI's threaded usage
+if settings.database_url.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
 
 engine = create_engine(settings.database_url, pool_pre_ping=True, connect_args=connect_args)
