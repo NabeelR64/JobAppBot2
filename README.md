@@ -441,7 +441,7 @@ The current dashboard is a basic `<table>` with four columns (Company, Role, Sta
 
 ---
 
-### Goal 4 — Gmail Integration for Status Tracking
+### Goal 4 — Gmail Integration for Status Tracking (Completed)
 
 | Field | Details |
 |:---|:---|
@@ -499,7 +499,7 @@ Currently users can swipe right an unlimited number of times, which creates unbo
 
 ---
 
-### Goal 6 — PostgreSQL Migration & Production Hardening
+### Goal 6 — PostgreSQL Migration & Production Hardening (In Progress)
 
 | Field | Details |
 |:---|:---|
