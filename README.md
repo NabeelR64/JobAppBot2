@@ -1,536 +1,277 @@
 # Jinder - Tinder for Jobs
 
-Jinder is a web application that simplifies the job application process using a "swipe" interface. It automates job discovery, matching, and application submission.
+Jinder is a web application that simplifies the job application process using a "swipe" interface. It automates job discovery, matching, application submission, and status tracking — all powered by AI.
 
 ## Table of Contents
-1. [Features](#features)
-2. [Tech Stack](#tech-stack)
-3. [Setup](#setup)
+1. [Setup](#setup)
+2. [Features](#features)
+3. [Tech Stack](#tech-stack)
 4. [Frontend Development](#frontend-development)
-5. [Future Work & Agent Prompts](#future-work--agent-prompts)
-6. [Phase 2 — Three-Week Roadmap](#phase-2--three-week-roadmap)
+5. [Phase 2 — Roadmap & Progress](#phase-2--roadmap--progress)
+6. [Future Work](#future-work)
 7. [Original Requirements & Analysis](#original-requirements--analysis)
 8. [Change Log](#change-log)
 9. [License](#license)
 
-## Features
-
-- **Google Sign-In**: Easy onboarding.
-- **Resume Parsing**: Upload your resume to get tailored job recommendations.
-- **Smart Matching**: Jobs are matched based on your profile and resume using AI embeddings.
-- **Swipe Interface**: Swipe right to apply, left to skip.
-- **Auto-Apply**: Automatically fills out applications for jobs you swipe right on.
-- **Dashboard**: Track your application status in real-time.
-- **Gmail Integration**: Automatically updates application status based on emails from recruiters.
-
-## Tech Stack
-
-- **Frontend**: Angular (v16+)
-- **Backend**: FastAPI (Python 3.10+)
-- **Database**: PostgreSQL
-- **AI/ML**: OpenAI Embeddings & GPT-4
-- **Automation**: Playwright
+---
 
 ## Setup
 
-### Backend
+### Prerequisites
 
-1. Navigate to `backend/`
-2. Create a virtual environment: `python3 -m venv venv`
-3. Activate it: `source venv/bin/activate`
-4. Install dependencies: `pip install -r requirements.txt`
-5. Run the server: `uvicorn app.main:app --reload`
+| Dependency | Version | Purpose |
+|:-----------|:--------|:--------|
+| **Python** | 3.10+ | Backend runtime |
+| **Node.js** | 18+ | Frontend tooling |
+| **npm** | 9+ | Frontend package manager |
+| **Angular CLI** | 18.x | `npm install -g @angular/cli` |
+| **PostgreSQL** *(optional)* | 16+ | Production database (SQLite is used by default for local dev) |
+| **Docker** *(optional)* | Latest | Required only if using PostgreSQL via `docker-compose` |
 
-### Frontend
+### Environment Variables
 
-1. Navigate to `frontend/`
-2. Install dependencies: `npm install`
-3. Run the app: `ng serve`
+Before running, configure the backend `.env` file at `backend/.env`:
+
+```env
+# Required
+GOOGLE_CLIENT_ID=<your-google-client-id>
+GOOGLE_CLIENT_SECRET=<your-google-client-secret>
+SECRET_KEY=<your-jwt-secret-key>
+
+# Optional — enable AI features
+OPENAI_API_KEY=<your-openai-api-key>
+THEIRSTACK_API_KEY=<your-theirstack-api-key>
+
+# Optional — switch to PostgreSQL (requires docker compose up -d)
+# DATABASE_URL=postgresql://postgres:password@localhost:5432/jinder
+```
+
+> **Note:** Without `OPENAI_API_KEY`, resume embedding, cover letter generation, and Gmail email classification will use graceful fallbacks. Without `THEIRSTACK_API_KEY`, the job search API will not return real listings.
+
+### Quick Start (One Command)
+
+The easiest way to run both backend and frontend together:
+
+```bash
+chmod +x start_dev.sh
+./start_dev.sh
+```
+
+This script will:
+1. Create a Python virtual environment (if it doesn't exist)
+2. Install backend dependencies
+3. Start the FastAPI backend on `http://localhost:8000`
+4. Install frontend dependencies
+5. Start the Angular frontend on `http://localhost:4200`
+
+Press `Ctrl+C` to stop all services.
+
+### Manual Setup
+
+#### Backend
+
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+The API will be available at `http://localhost:8000`. Interactive docs at `http://localhost:8000/docs`.
+
+#### Frontend
+
+```bash
+cd frontend
+npm install
+ng serve
+```
+
+The app will be available at `http://localhost:4200`.
+
+### PostgreSQL Setup (Optional)
+
+By default, Jinder uses SQLite for zero-config local development. To switch to PostgreSQL with pgvector support:
+
+```bash
+# Start PostgreSQL via Docker
+docker compose up -d
+
+# Then uncomment DATABASE_URL in backend/.env:
+DATABASE_URL=postgresql://postgres:password@localhost:5432/jinder
+```
+
+---
+
+## Features
+
+### Core Features (Phase 1 — MVP)
+- **Google Sign-In** — OAuth 2.0 authentication with server-side token verification and JWT session management
+- **Onboarding Wizard** — Step-by-step profile setup: name, desired roles, locations, salary, seniority, remote preference, experience, education
+- **Resume Upload** — Drag-and-drop or file-input upload with PDF/DOCX support and file-type validation (magic byte checks)
+- **Smart Job Matching** — Jobs fetched from TheirStack API based on user profile; ranked by AI embedding cosine-similarity when available
+- **Swipe Interface** — Tinder-style card deck with swipe left (skip) / swipe right (apply) gestures; includes job badges, truncated descriptions, and external links
+- **Applications Dashboard** — Track application statuses in real-time
+- **Account Management** — User dropdown in navbar, comprehensive account deletion with cascade
+
+### Phase 2 Features (Completed)
+- **Real Resume Parsing** — PDF text extraction via PyPDF2, DOCX via python-docx; parsed text stored in database
+- **AI Embeddings** — Resume text embedded via OpenAI `text-embedding-3-small` (1536-dim vectors) for semantic job matching
+- **AI Cover Letters** — GPT-4o-mini generates tailored cover letters from resume + profile + job description (with graceful fallback)
+- **Browser Automation (Playwright)** — Headless Chromium navigates to job URLs, detects form fields, fills from user profile, uploads resume, captures screenshots; supports dry-run mode
+- **Form Detection Engine** — Heuristic-based detection of name, email, phone, resume upload, cover letter, LinkedIn, and address fields; plus CAPTCHA detection
+- **Pause & Resume Automation** — When the bot encounters unfillable fields, it saves progress and pauses with `USER_INPUT_NEEDED` status; users provide missing values inline and resume automation
+- **Kanban Dashboard** — 5-column drag-and-drop board (Pending, Applied, Interview, Offer/Other, Rejected) with Angular CDK `DragDropModule`; includes filtering by company/role and sort controls
+- **Gmail Integration** — OAuth 2.0 `gmail.readonly` scope; background polling every 15 minutes; GPT-4o-mini classifies recruiter emails; fuzzy company-name matching updates application statuses automatically
+- **Rate Limiting** — `slowapi` middleware with configurable per-user and global limits
+- **File Validation** — Magic byte verification on uploads to reject spoofed file extensions
+- **Cosine-Similarity Ranking** — NumPy-based embedding comparison ranks jobs by resume relevance
+
+---
+
+## Tech Stack
+
+| Layer | Technology | Details |
+|:------|:-----------|:--------|
+| **Frontend** | Angular 18 | TypeScript, Angular CDK (drag-and-drop), RxJS |
+| **Backend** | FastAPI | Python 3.10+, Pydantic, async-ready |
+| **Database** | SQLite (dev) / PostgreSQL 16 (prod) | SQLAlchemy ORM, Alembic migrations, pgvector support |
+| **AI / ML** | OpenAI | `text-embedding-3-small` for embeddings, GPT-4o-mini for cover letters & email classification |
+| **Job API** | TheirStack | Real job listings based on role + location preferences |
+| **Automation** | Playwright | Headless Chromium for auto-apply form filling |
+| **Email** | Gmail API | OAuth 2.0, read-only scope, background polling via APScheduler |
+| **Auth** | Google OAuth 2.0 | `google-auth` library, JWT sessions via `python-jose` |
+| **Rate Limiting** | slowapi | Per-user and global request rate limiting |
+| **Containerization** | Docker | Backend Dockerfile, docker-compose with PostgreSQL + pgvector |
+
+---
 
 ## Frontend Development
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.4.
 
-### Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-
-### Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-### Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-### Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-### Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-### Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-
-## Future Work & Agent Prompts
-
-This section outlines the roadmap for moving Jinder from MVP to a production-ready application. Each section includes a detailed prompt that can be fed to an AI agent to execute the task.
-
-### 1. Fully Integrate Google OAuth (Completed)
-
-**Current Status:** The MVP uses a mock login flow on the frontend and a bypassed dependency on the backend.
-**Goal:** Implement real Google Sign-In, verify tokens on the backend, and create/update users securely.
-
-#### Agent Prompt
-```text
-Task: Implement Real Google OAuth Integration
-
-Context:
-The current Jinder application uses a mock authentication flow. We need to replace this with actual Google OAuth 2.0.
-
-Requirements:
-1. Frontend (Angular):
-   - Replace the mock "Sign in with Google" button with the actual Google Identity Services SDK.
-   - Retrieve the ID token from Google upon successful sign-in.
-   - Send this ID token to the backend `/auth/login/google` endpoint.
-2. Backend (FastAPI):
-   - Update `app/api/auth.py` to verify the Google ID token using `google-auth` library.
-   - Extract user email and sub (subject) from the verified token.
-   - Create or update the user in the database.
-   - Issue a JWT access token for the session.
-   - Revert the `get_current_user` dependency in `app/api/deps.py` to actually validate the JWT token (remove the MVP bypass).
-3. Configuration:
-   - Ensure `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are read from environment variables.
-
-Deliverables:
-- Updated `LandingComponent` and `AuthService`.
-- Updated `auth.py` and `deps.py`.
-- Verified login flow.
-```
-
-### 2. Fully Integrate Job Search API (Completed)
-
-**Current Status:** **DONE.** The application now integrates with the **TheirStack API** to fetch real job listings.
-**Implementation Details:**
-- `TheirStackService` queries for jobs matching the user's "Desired Roles" and "Desired Locations".
-- Jobs are automatically ingested when recommendations allow.
-- Duplicate detection is implemented via `external_id`.
-
-#### Agent Prompt (Reference)
-*This task has been completed.*
-```text
-Task: Integrate Real Job Search API
-
-Context:
-Jinder currently uses mock data for job postings. We need to fetch real jobs relevant to the user's profile.
-
-Requirements:
-1. Select a Job API (e.g., JSearch on RapidAPI or similar).
-2. Backend Service:
-   - Update `app/services/job_ingestion.py`.
-   - Implement a function `fetch_jobs(query: str, location: str)` that calls the external API.
-   - Map the API response to the `JobPosting` database model.
-   - Ensure duplicate jobs are not inserted (check by `external_id` or URL).
-3. Integration:
-   - Update the `/jobs/ingest` endpoint to accept search parameters.
-   - Create a background task that periodically fetches jobs based on active user profiles (e.g., every 24 hours).
-
-Deliverables:
-- `JobIngestionService` with real API integration.
-- Updated `JobPosting` model if new fields are needed.
-- Tests verifying API response parsing.
-```
-
-### 3. Implement Job Application Automation
-
-**Current Status:** The `automation.py` service is a stub that waits 5 seconds and marks the application as "APPLIED".
-**Goal:** Use Playwright/Selenium to actually navigate to job URLs and fill out forms.
-
-#### Agent Prompt
-```text
-Task: Implement Browser Automation for Job Applications
-
-Context:
-We need to automate the actual application process. When a user swipes right, the system should attempt to apply for the job.
-
-Requirements:
-1. Tooling: Use `playwright` (Python).
-2. Service Implementation (`app/services/automation.py`):
-   - Launch a headless browser.
-   - Navigate to the `job_posting.url`.
-   - Detect input fields (First Name, Last Name, Email, Resume Upload).
-   - Use heuristics or LLM (OpenAI) to map HTML form fields to User Profile data.
-   - Fill out the form.
-   - Upload the resume file (from `app/services/resume_parser.py` path).
-   - Submit the form.
-   - Capture a screenshot of the confirmation page.
-3. Error Handling:
-   - Handle cases where the form is too complex (mark status as `FAILED` or `MANUAL_INTERVENTION_REQUIRED`).
-   - Implement retry logic.
-
-Deliverables:
-- Functional `AutomationService` using Playwright.
-- Logic to map user profile data to DOM elements.
-- Screenshot storage for proof of application.
-```
-
-### 4. Add Swipe Limits
-
-**Current Status:** Users can swipe indefinitely.
-**Goal:** Limit users to 10 right swipes (applications) per day to manage costs/rate limits.
-
-#### Agent Prompt
-```text
-Task: Implement Daily Swipe Limits
-
-Context:
-To prevent abuse and manage automation costs, limit users to 10 "Right Swipes" (applications) per 24-hour rolling window.
-
-Requirements:
-1. Database:
-   - No schema change needed if we query `SwipeAction` table, OR add `daily_swipes_count` to UserProfile for performance.
-2. Backend Logic:
-   - In `app/api/jobs.py` (swipe endpoint):
-     - Count number of "RIGHT" swipes by `current_user` in the last 24 hours.
-     - If count >= 10, raise `HTTPException(429, "Daily limit reached")`.
-3. Frontend:
-   - Display a "Swipes remaining: X" counter on the Swipe page.
-   - Disable the "Right Swipe" button/gesture when limit is reached.
-   - Show a modal explaining the limit.
-
-Deliverables:
-- Updated swipe API endpoint with rate limiting logic.
-- Updated Swipe UI with counter and limit state.
-```
-
-### 5. Improve Application Status UI
-
-**Current Status:** A basic HTML table.
-**Goal:** A Kanban-style board or a more visual timeline view.
-
-#### Agent Prompt
-```text
-Task: Redesign Application Dashboard
-
-Context:
-The current dashboard is a simple table. Users need a better way to visualize the progress of their applications.
-
-Requirements:
-1. UI Design:
-   - Create a Kanban board layout with columns: "Applied", "Interview", "Offer", "Rejected".
-   - OR create a list view with a visual progress stepper for each application.
-2. Frontend Components:
-   - Create `ApplicationCardComponent` to display job details and status.
-   - Implement drag-and-drop (optional) or simple status indicators.
-3. Features:
-   - Allow users to manually update status (e.g., if they get an email outside the system).
-   - Filter/Sort by date, company, or status.
-
-Deliverables:
-- New `DashboardComponent` design.
-- Responsive CSS/Styling.
-```
-
-### 6. Proper Database Integration
-
-**Current Status:** Using SQLite for local dev; Models use JSON instead of ARRAY.
-**Goal:** Migrate to PostgreSQL for production, utilizing `pgvector` for embeddings.
-
-#### Agent Prompt
-```text
-Task: Migrate to PostgreSQL and Optimize Schema
-
-Context:
-The MVP uses SQLite. Production requires PostgreSQL for concurrency and vector search capabilities.
-
-Requirements:
-1. Infrastructure:
-   - Provision a PostgreSQL instance (local Docker or AWS RDS).
-2. Schema Changes:
-   - Revert `JSON` columns in `models.py` to `ARRAY(String)` (or keep JSONB if preferred for Postgres).
-   - Install `pgvector` extension.
-   - Add `embedding_vector` column to `Resume` and `JobPosting` tables.
-3. Migration:
-   - Update `alembic/env.py` and `config.py` to prefer Postgres.
-   - Generate new migration scripts.
-   - Ensure data persistence.
-
-Deliverables:
-- Configured PostgreSQL connection.
-- Updated SQLAlchemy models.
-- Successful Alembic migration.
-```
-
-### 7. Security Concerns
-
-**Current Status:** Basic JWT, no rate limiting, file upload not sanitized.
-**Goal:** Harden the application.
-
-#### Agent Prompt
-```text
-Task: Security Hardening
-
-Context:
-The application needs to be secured before public release.
-
-Requirements:
-1. File Uploads:
-   - Validate file magic numbers (signatures) to ensure uploaded resumes are actually PDF/DOCX.
-   - Scan files for malware (ClamAV or similar).
-   - Store files in AWS S3 (private bucket) instead of local disk.
-2. API Security:
-   - Implement global rate limiting (e.g., `slowapi`).
-   - Ensure all endpoints are behind authentication (except login/landing).
-3. Data:
-   - Encrypt sensitive fields (phone number, address) at rest if necessary.
-   - Sanitize inputs to prevent XSS/SQLi (SQLAlchemy handles SQLi, but check raw queries).
-
-Deliverables:
-- S3 Integration for storage.
-- Rate limiting middleware.
-- File validation logic.
-```
-
-### 8. Scalability
-
-**Current Status:** Monolithic FastAPI app.
-**Goal:** Prepare for high load.
-
-#### Agent Prompt
-```text
-Task: Improve Scalability
-
-Context:
-As the user base grows, the automation and job ingestion tasks will become bottlenecks.
-
-Requirements:
-1. Async Workers:
-   - Move `automation.py` and `job_ingestion.py` logic to a task queue (Celery + Redis or AWS SQS + Lambda).
-   - The FastAPI app should only *enqueue* tasks, not execute them in the request loop.
-2. Caching:
-   - Implement Redis caching for `get_current_user` and job recommendations.
-3. Database:
-   - Set up connection pooling (pgbouncer).
-
-Deliverables:
-- Celery/Redis configuration.
-- Refactored background tasks.
-```
-
-### 9. Production Deployment
-
-**Current Status:** Local `uvicorn` and `ng serve`.
-**Goal:** Live URL.
-
-#### Agent Prompt
-```text
-Task: Production Deployment to AWS
-
-Context:
-Deploy the Jinder application to the public internet.
-
-Requirements:
-1. Containerization:
-   - Create `Dockerfile` for Backend.
-   - Create `Dockerfile` (or build script) for Frontend (Nginx serving static files).
-2. Infrastructure (Terraform/CDK preferred):
-   - AWS ECS (Fargate) for Backend.
-   - AWS S3 + CloudFront for Frontend.
-   - AWS RDS for PostgreSQL.
-   - AWS ElastiCache for Redis (if used).
-3. CI/CD:
-   - GitHub Actions workflow to build and push images to ECR on push to `main`.
-   - Auto-deploy to ECS.
-
-Deliverables:
-- Dockerfiles.
-- Terraform scripts.
-- GitHub Actions workflow.
-- Live URL.
-```
-
-## Phase 2 — Three-Week Roadmap
-
-Phase 1 delivered a working MVP: Google OAuth, user profile & resume upload, TheirStack job API integration, a swipe interface, and a basic applications dashboard. Phase 2 focuses on replacing every remaining stub with production-quality implementations and polishing the user experience so the app is genuinely useful end-to-end.
+| Command | Description |
+|:--------|:------------|
+| `ng serve` | Dev server at `http://localhost:4200/` with live reload |
+| `ng build` | Production build → `dist/` directory |
+| `ng generate component <name>` | Scaffold a new component |
+| `ng test` | Unit tests via Karma |
+| `ng e2e` | End-to-end tests (requires e2e package) |
+| `ng help` | CLI command reference |
 
 ---
 
-### Goal 1 — Real Resume Parsing & AI-Powered Cover Letters (Completed)
+## Phase 2 — Roadmap & Progress
 
-| Field | Details |
-|:---|:---|
-| **Goal** | Replace the placeholder resume parser and hardcoded cover letter stub with real implementations |
-| **Expected Duration** | Week 1 (Days 1–4) |
-| **Short Description** | Extract actual text from PDF/DOCX resumes and generate tailored cover letters with OpenAI |
+Phase 1 delivered a working MVP: Google OAuth, user profile & resume upload, TheirStack job API integration, a swipe interface, and a basic applications dashboard. Phase 2 focused on replacing every remaining stub with production-quality implementations and polishing the user experience so the app is genuinely useful end-to-end.
 
-**Long Description:**
-The current `resume_parser.py` returns a dummy string like "Extracted text from PDF: filename" and `cover_letter.py` outputs a static template. We will integrate PyPDF2 and python-docx to extract real resume text, then use OpenAI embeddings to create a semantic vector for each resume. The cover letter service will call GPT-4 with the user's parsed resume, profile preferences, and the specific job description to produce a professional, customized letter. This is foundational because every downstream feature (job matching, auto-apply) depends on having real resume data.
+### Progress Overview
 
-**Game Plan:**
-1. Install and integrate `PyPDF2` and `python-docx` into `resume_parser.py` for actual text extraction.
-2. Call the OpenAI embeddings API after extraction and store the vector in the `Resume` model (add `embedding_vector` column).
-3. Rewrite `cover_letter.py` to call GPT-4 with a structured prompt containing resume text, user profile, and job description.
-4. Add unit tests for parsing various resume formats (PDF, DOCX) and verifying cover letter output structure.
-5. Update the resume upload API to return richer parsed data (skills, experience, education extracted by GPT).
-
-**Resources Affected:**
-- `backend/app/services/resume_parser.py` — full rewrite
-- `backend/app/services/cover_letter.py` — full rewrite
-- `backend/app/models.py` — add `embedding_vector` column to `Resume`
-- `backend/app/api/resume.py` — update response to include richer parsed data
-- `backend/requirements.txt` — add `PyPDF2`, `python-docx`
+| # | Goal | Status | Summary |
+|:--|:-----|:-------|:--------|
+| 1 | Resume Parsing & AI Cover Letters | ✅ Completed | Real PDF/DOCX extraction, OpenAI embeddings, GPT-4o-mini cover letters |
+| 2 | Browser Automation (Playwright) | ✅ Completed | Headless form filling, screenshot capture, pause & resume for unfillable fields |
+| 3 | Dashboard Redesign (Kanban) | ✅ Completed | 5-column drag-and-drop board with filtering and sorting |
+| 4 | Gmail Integration | ✅ Completed | OAuth consent, background polling, GPT email classification, auto status updates |
+| 5 | Daily Swipe Limits & Analytics | 🔲 Not Started | 10-swipe/day cap, usage counter, weekly analytics widget |
+| 6 | PostgreSQL & Production Hardening | ✅ Completed | Docker Compose, rate limiting, file validation, cosine-similarity ranking, Dockerfile |
 
 ---
 
-### Goal 2 — Browser Automation for Auto-Apply (Playwright) (Completed)
+### Goal 1 — Real Resume Parsing & AI-Powered Cover Letters ✅
 
 | Field | Details |
 |:---|:---|
-| **Goal** | Replace the `time.sleep(5)` automation stub with real Playwright-based form filling |
-| **Expected Duration** | Week 1–2 (Days 4–9) |
-| **Short Description** | Use Playwright to navigate to job URLs, detect form fields, and submit applications automatically |
+| **Status** | Completed |
+| **What was built** | Real PDF (PyPDF2) and DOCX (python-docx) text extraction; OpenAI `text-embedding-3-small` embeddings (1536-dim vectors stored as JSON); GPT-4o-mini cover letter generation with graceful fallback |
 
-**Long Description:**
-The current `automation.py` simply sleeps for 5 seconds and marks every application as "APPLIED" without visiting any website. We will build a Playwright-powered automation engine that launches a headless browser, navigates to the job posting URL, and uses heuristics (and optionally an LLM) to identify form fields like name, email, phone, and resume upload. The service will fill these fields from the user's profile data, attach the resume file, and submit. A screenshot of the confirmation page will be captured as proof. Jobs with forms too complex to automate will be marked as `MANUAL_INTERVENTION_REQUIRED` with a direct link for the user.
-
-**Game Plan:**
-1. Set up Playwright in headless mode within the automation service; ensure browser binaries are installed via `playwright install`.
-2. Build a generic form-detection module that identifies common input fields (name, email, phone, resume upload) by label text, placeholder, and `name`/`id` attributes.
-3. Implement field-to-profile mapping logic that fills detected fields with `UserProfile` and `Resume` data.
-4. Add resume file upload handling (detect `<input type="file">` and attach the stored PDF/DOCX).
-5. Capture a screenshot on success/failure; add a `screenshot_path` column to `Application` model.
-6. Implement error handling: catch navigation timeouts, CAPTCHA detection, and unsupported multi-step forms — mark these as `FAILED` or `MANUAL_INTERVENTION_REQUIRED`.
-7. Add a new `ApplicationStatus.MANUAL_INTERVENTION_REQUIRED` enum value.
-
-**Resources Affected:**
-- `backend/app/services/automation.py` — full rewrite
-- `backend/app/models.py` — add `screenshot_path` to `Application`, add `MANUAL_INTERVENTION_REQUIRED` status
-- `backend/app/api/jobs.py` — move automation to a proper async background task (Celery or similar)
-- `backend/uploads/` — store screenshots alongside resumes
+**Files changed:**
+- `backend/app/services/resume_parser.py` — full rewrite with real extraction
+- `backend/app/services/cover_letter.py` — GPT-4o-mini integration
+- `backend/app/services/embedding.py` — new service for OpenAI embeddings
+- `backend/app/models.py` — `embedding_vector` column on `Resume`
+- `backend/app/core/config.py` — `OPENAI_API_KEY`, `OPENAI_EMBEDDING_MODEL` settings
 
 ---
 
-### Goal 3 — Dashboard Redesign (Kanban Board) (Completed)
+### Goal 2 — Browser Automation for Auto-Apply (Playwright) ✅
 
 | Field | Details |
 |:---|:---|
-| **Goal** | Replace the plain HTML table dashboard with a visual Kanban-style board |
-| **Expected Duration** | Week 2 (Days 8–11) |
-| **Short Description** | Build a column-based board with cards organized by application status (Applied, Interview, Offer, Rejected) |
+| **Status** | Completed |
+| **What was built** | Playwright headless Chromium engine that navigates to job URLs, detects form fields via heuristics, fills from user profile, uploads resume, captures screenshots. Includes `MANUAL_INTERVENTION_REQUIRED` and `USER_INPUT_NEEDED` statuses with inline form completion. Default `DRY_RUN=True` mode. |
 
-**Long Description:**
-The current dashboard is a basic `<table>` with four columns (Company, Role, Status, Applied On) and no interactivity beyond a delete-account button. We will redesign it as a Kanban board with swim-lane columns for each status (Applied, Interview Invited, Offer, Rejected, Manual Intervention). Each application becomes a draggable card showing the company logo (or initials), role title, date, and a link to the original posting. Users will be able to manually update a card's status via dropdown and filter/sort by date or company. This significantly improves the user experience and makes tracking dozens of applications manageable.
+**Files changed:**
+- `backend/app/services/automation.py` — full rewrite with Playwright
+- `backend/app/services/form_detector.py` — new heuristic form field detector
+- `backend/app/models.py` — `screenshot_path`, `cover_letter_text`, `automation_state` columns; `MANUAL_INTERVENTION_REQUIRED` and `USER_INPUT_NEEDED` statuses
+- `backend/app/api/application.py` — `POST /applications/{id}/provide-fields` endpoint
+- Frontend Kanban board updated with "Needs Input" column and inline field forms
 
-**Game Plan:**
-1. Create an `ApplicationCardComponent` to display job title, company, date, status badge, and external link.
-2. Build a `KanbanBoardComponent` with columns dynamically generated from `ApplicationStatus` values.
-3. Implement drag-and-drop between columns using Angular CDK `DragDropModule` to allow manual status updates.
-4. Add a backend endpoint `PATCH /applications/{id}/status` to allow users to manually update application status.
-5. Add filtering controls (by date range, company name, status) and sorting (newest first, alphabetical).
-6. Style with responsive CSS so the board scrolls horizontally on mobile and stacks on narrow screens.
+---
 
-**Resources Affected:**
-- `frontend/src/app/features/dashboard/` — rewrite `dashboard.component.html`, `dashboard.component.ts`, `dashboard.component.css`
+### Goal 3 — Dashboard Redesign (Kanban Board) ✅
+
+| Field | Details |
+|:---|:---|
+| **Status** | Completed |
+| **What was built** | 5-column Kanban board (Pending, Applied, Interview, Offer/Other, Rejected) using Angular CDK `DragDropModule`. Drag-and-drop moves cards between columns via `PATCH /applications/{id}/status`. ApplicationCardComponent with company avatar, status badge, date, and external link. Search by company/role, sort by newest or alphabetical. |
+
+**Files changed:**
+- `frontend/src/app/features/dashboard/` — full rewrite
 - `frontend/src/app/features/dashboard/application-card/` — new component
-- `frontend/src/app/core/services/application.service.ts` — add `updateStatus()` method
-- `backend/app/api/application.py` — add `PATCH /{id}/status` endpoint
-- `frontend/package.json` — add `@angular/cdk`
+- `backend/app/api/application.py` — `PATCH /{id}/status` endpoint with ownership validation and audit trail
 
 ---
 
-### Goal 4 — Gmail Integration for Status Tracking (Completed)
+### Goal 4 — Gmail Integration for Status Tracking ✅
 
 | Field | Details |
 |:---|:---|
-| **Goal** | Connect to the user's Gmail (read-only) to automatically detect application status updates |
-| **Expected Duration** | Week 2–3 (Days 10–14) |
-| **Short Description** | Poll Gmail for recruiter emails and use GPT classification to update application statuses automatically |
+| **Status** | Completed |
+| **What was built** | Server-side Gmail OAuth 2.0 flow for `gmail.readonly` scope. Background scheduler (APScheduler) polls all connected users every 15 minutes. GPT-4o-mini classifies emails by status (confirmation, interview invite, rejection, follow-up) with confidence threshold ≥ 0.7. Fuzzy Jaccard company-name matching links emails to applications. Status priority prevents downgrades. Onboarding Step 3 "Connect Gmail" with connect/skip/disconnect. |
 
-**Long Description:**
-The current `gmail.py` service is a mock that randomly flips 30% of "APPLIED" applications to "INTERVIEW_INVITED" without touching any real email. We will implement proper Gmail API OAuth 2.0 with read-only scope, requesting consent during onboarding. A background worker will periodically poll the user's inbox for emails from known recruiting domains and job-related subject lines. Each candidate email will be classified by GPT-4 into categories (confirmation, interview invite, rejection, follow-up) and matched to an existing application by company name. Detected status changes will create `ApplicationStatusEvent` entries and update the Kanban board in real-time.
-
-**Game Plan:**
-1. Add Gmail OAuth consent screen to the onboarding flow — request `gmail.readonly` scope after profile completion.
-2. Store OAuth refresh tokens securely in the `User` model (add `gmail_refresh_token` column, encrypted at rest).
-3. Rewrite `backend/app/services/gmail.py` to use the Gmail API (`google-api-python-client`) to fetch recent messages.
-4. Build a GPT-4 classification prompt that takes email subject + body snippet and returns a status category + confidence score.
-5. Implement company-name matching logic to link detected emails to existing `Application` records.
-6. Set up a periodic background task (e.g., every 15 minutes per user) using FastAPI's `BackgroundTasks` or an APScheduler job.
-7. Create `ApplicationStatusEvent` entries for each detected update.
-
-**Resources Affected:**
-- `backend/app/services/gmail.py` — full rewrite
-- `backend/app/models.py` — add `gmail_refresh_token` to `User`
-- `backend/app/api/gmail.py` — add OAuth callback and consent endpoints
-- `frontend/src/app/features/onboarding/` — add Gmail consent step
-- `backend/app/core/config.py` — add Gmail API scopes config
+**Files changed:**
+- `backend/app/services/gmail.py` — full rewrite with Gmail API client
+- `backend/app/api/gmail.py` — connect/callback/status/disconnect/poll endpoints
+- `backend/app/models.py` — `gmail_refresh_token`, `gmail_connected_at` on `User`
+- `backend/app/core/config.py` — `GMAIL_REDIRECT_URI`, `GMAIL_SCOPES`
+- `frontend/src/app/features/onboarding/` — Gmail consent step
+- `frontend/src/app/core/services/` — `GmailService`
 
 ---
 
-### Goal 5 — Daily Swipe Limits & Usage Analytics
+### Goal 5 — Daily Swipe Limits & Usage Analytics 🔲
 
 | Field | Details |
 |:---|:---|
+| **Status** | Not Started |
 | **Goal** | Limit right-swipes to 10 per day and show usage stats on the dashboard |
-| **Expected Duration** | Week 3 (Days 14–16) |
-| **Short Description** | Enforce a daily application cap to manage API costs and show users their remaining swipes and weekly stats |
 
-**Long Description:**
-Currently users can swipe right an unlimited number of times, which creates unbounded automation and API costs. We will add a 10-swipe-per-day rolling limit checked server-side on every right-swipe request. The frontend will display a "Swipes remaining: X/10" counter on the swipe page and gracefully disable the Apply button when the limit is reached, showing a modal explaining the reset time. Additionally, we will add a small analytics section to the dashboard showing weekly application counts, success rates, and most-applied-to companies — giving users insight into their job search activity.
-
-**Game Plan:**
-1. In `backend/app/api/jobs.py` swipe endpoint, query `SwipeAction` count for the current user in the last 24 hours; return `429` if ≥ 10.
-2. Add a `GET /users/me/swipe-stats` endpoint returning daily count, remaining swipes, and reset time.
-3. Update the swipe component to fetch and display the remaining count; disable the "Apply & Next" button at limit.
-4. Add a limit-reached modal with countdown timer to next reset window.
-5. Build a small analytics widget on the dashboard: weekly applications chart, top companies, success/rejection ratio.
-6. Add frontend service method to fetch analytics data from a new `GET /users/me/analytics` endpoint.
-
-**Resources Affected:**
-- `backend/app/api/jobs.py` — add rate-limiting logic to swipe endpoint
-- `backend/app/api/users.py` — add `/me/swipe-stats` and `/me/analytics` endpoints
-- `frontend/src/app/features/swipe/swipe.component.ts` — add counter, disable logic, modal
-- `frontend/src/app/features/swipe/swipe.component.html` — UI for counter and limit modal
-- `frontend/src/app/features/dashboard/` — add analytics widget
-- `frontend/src/app/core/services/job.service.ts` — add `getSwipeStats()` method
+**Planned work:**
+- Server-side swipe count check (last 24 hours) returning 429 when limit reached
+- `GET /users/me/swipe-stats` endpoint for remaining count and reset time
+- Frontend counter, disabled Apply button at limit, reset countdown modal
+- Weekly analytics widget on dashboard (application chart, top companies, success/rejection ratio)
 
 ---
 
-### Goal 6 — PostgreSQL Migration & Production Hardening (In Progress)
+### Goal 6 — PostgreSQL Migration & Production Hardening ✅
 
 | Field | Details |
 |:---|:---|
-| **Goal** | Migrate from SQLite to PostgreSQL and add essential security measures |
-| **Expected Duration** | Week 3 (Days 16–20) |
-| **Short Description** | Switch to PostgreSQL with pgvector support, add rate limiting, file validation, and environment-based configuration |
+| **Status** | Completed |
+| **What was built** | `docker-compose.yml` with PostgreSQL 16 + pgvector. Backend `Dockerfile`. `DATABASE_URL` env var with SQLite fallback. `slowapi` rate limiting middleware (30 req/min per-user, 100 req/min global). Magic byte file validation on uploads. NumPy cosine-similarity ranking for embedding-based job sorting. All secrets sourced from `.env`. |
 
-**Long Description:**
-The app currently runs on SQLite, which cannot handle concurrent users and lacks the `pgvector` extension needed for semantic job matching. We will set up a local PostgreSQL instance (via Docker), update the connection config to use it by default, and generate fresh Alembic migrations. With Postgres in place, we will enable the `embedding_vector` column using `pgvector` and implement cosine-similarity job ranking. On the security side, we will add file-type validation (magic number checks) on resume uploads, rate limiting via `slowapi`, and ensure all sensitive config (API keys, secrets) comes from environment variables with no defaults in code.
-
-**Game Plan:**
-1. Create a `docker-compose.yml` with PostgreSQL 16 + pgvector extension for local development.
-2. Update `backend/app/core/config.py` to default to the Postgres connection string instead of SQLite.
-3. Generate and run Alembic migrations against the new Postgres database.
-4. Enable the `embedding_vector` column in `Resume` model using `pgvector`'s `Vector` type.
-5. Implement cosine-similarity matching in `job_ingestion.py` to rank jobs by resume embedding proximity.
-6. Add `slowapi` rate limiting middleware to `main.py` (global 100 req/min, per-user 30 req/min).
-7. Add magic-number file validation in `resume.py` to verify uploaded files are genuine PDF/DOCX.
-8. Audit and remove all hardcoded secrets from `config.py`; ensure `.env` is the sole source.
-9. Create a `Dockerfile` for the backend to prepare for future deployment.
-
-**Resources Affected:**
-- `docker-compose.yml` — new file
-- `backend/Dockerfile` — new file
-- `backend/app/core/config.py` — update database_url default
-- `backend/app/models.py` — enable `embedding_vector` with pgvector
-- `backend/app/main.py` — add rate limiting middleware
-- `backend/app/api/resume.py` — add file validation
-- `backend/app/services/job_ingestion.py` — add embedding-based ranking
-- `backend/alembic/` — new migration scripts
-- `backend/requirements.txt` — add `slowapi`, `python-magic`
+**Files changed:**
+- `docker-compose.yml` — new
+- `backend/Dockerfile` — new
+- `backend/app/core/config.py` — `DATABASE_URL`, rate limit settings
+- `backend/app/main.py` — rate limiting middleware
+- `backend/app/api/resume.py` — file validation
+- `backend/app/services/job_ingestion.py` — embedding-based ranking
+- `backend/requirements.txt` — `slowapi`, `numpy`, `pgvector`
 
 ---
 
@@ -542,10 +283,40 @@ The app currently runs on SQLite, which cannot handle concurrent users and lacks
 | **Week 2** (Days 8–14) | Goal 2 finish (Automation), Goal 3 (Dashboard), Goal 4 start (Gmail) | Working auto-apply, Kanban board, Gmail OAuth consent |
 | **Week 3** (Days 15–21) | Goal 4 finish (Gmail), Goal 5 (Swipe Limits), Goal 6 (Postgres + Security) | Email status detection, rate limits, PostgreSQL migration, Dockerfile |
 
+---
+
+## Future Work
+
+These items remain on the roadmap beyond Phase 2:
+
+### Daily Swipe Limits & Usage Analytics (Phase 2, Goal 5)
+- Limit users to 10 right swipes per day (server-side enforcement)
+- Frontend counter + disabled button + countdown modal
+- Weekly analytics dashboard widget
+
+### Security Hardening
+- S3 integration for resume/screenshot storage (replacing local `uploads/` directory)
+- ClamAV or equivalent malware scanning on uploads
+- Encrypted PII fields at rest
+- Input sanitization audit
+
+### Scalability
+- Move automation and job ingestion to a task queue (Celery + Redis or AWS SQS)
+- Redis caching for user sessions and job recommendations
+- Database connection pooling (pgbouncer)
+
+### Production Deployment
+- Dockerfiles for both backend and frontend (Nginx for static serving)
+- AWS infrastructure: ECS Fargate (backend), S3 + CloudFront (frontend), RDS (PostgreSQL), ElastiCache (Redis)
+- CI/CD via GitHub Actions (build → ECR → auto-deploy to ECS)
+- Live URL
+
+---
+
 ## Original Requirements & Analysis
 
 You are a senior full-stack engineer and solution architect.
-Your task is to design and implement an MVP for Jinder, a “Tinder for jobs” web application.
+Your task is to design and implement an MVP for Jinder, a "Tinder for jobs" web application.
 
 Jinder lets users:
 
@@ -575,12 +346,12 @@ Focus on a working MVP first, but structure the code so premium features could b
 2. **On first login, user is asked to:**
    - Upload one resume (PDF/DOCX). Only a single resume is supported in this MVP.
    - Answer profile questions: desired roles, locations, salary expectations, seniority, remote/on-site preference, etc.
-3. System uses OpenAI embeddings to analyze the resume and build a semantic representation of the user’s skills, experience, and education.
-4. System recommends job categories/fields first (e.g., “Backend developer”, “Data analyst”, “Product manager”) based on resume + profile.
+3. System uses OpenAI embeddings to analyze the resume and build a semantic representation of the user's skills, experience, and education.
+4. System recommends job categories/fields first (e.g., "Backend developer", "Data analyst", "Product manager") based on resume + profile.
 5. **User can:**
    - Select categories they like.
-   - Explicitly mark categories they don’t want (“not interested in sales roles,” etc.).
-6. System pulls jobs from Indeed, ranks them using a hybrid scoring approach, and presents them as swipeable cards (desktop web).
+   - Explicitly mark categories they don't want ("not interested in sales roles," etc.).
+6. System pulls jobs from TheirStack API, ranks them using a hybrid scoring approach, and presents them as swipeable cards (desktop web).
 7. User can filter jobs with a filter panel.
 8. **For each job:**
    - Swipe left → skip.
@@ -588,14 +359,14 @@ Focus on a working MVP first, but structure the code so premium features could b
 9. **System generates a tailored cover letter using LLMs based on:**
    - Job title
    - Job description
-   - User’s resume
-   - User’s profile preferences
-10. System uses browser automation to fill application forms on the job’s external site.
+   - User's resume
+   - User's profile preferences
+10. System uses browser automation to fill application forms on the job's external site.
 11. System records the application in the database.
 12. **A dedicated dashboard page lets users see:**
-    - Which jobs they’ve applied to
+    - Which jobs they've applied to
     - Statuses and a status timeline per job
-13. **System requests read-only access to the user’s Gmail and periodically:**
+13. **System requests read-only access to the user's Gmail and periodically:**
     - Reads new emails
     - Detects job-related messages (thank-you, interview invites, rejections, recruiter follow-ups, general status updates)
     - Updates the application status timeline accordingly
@@ -633,19 +404,12 @@ Focus on a working MVP first, but structure the code so premium features could b
 #### Backend
 
 - **Language**: Python.
-- **Framework**: Prefer FastAPI (you may optionally include a small Flask adapter or note, but FastAPI should be the main HTTP API).
-- **Database**: PostgreSQL (hosted on AWS RDS, or equivalent).
-- **Hosting**: AWS (you may choose between ECS Fargate, EC2, or Lambda + API Gateway; choose a practical option and document it).
+- **Framework**: FastAPI.
+- **Database**: PostgreSQL (with SQLite fallback for local dev).
 - **Email integration**: Gmail API with OAuth 2.0, read-only scope.
-- **SMS provider**: You can choose a reasonable provider (e.g., Twilio or AWS SNS with SMS), but keep it abstracted.
-- **Resume and job embeddings**: Use OpenAI embeddings. Choose a current, cost-effective embedding model and document it (e.g., text-embedding model).
-- **Job Source**: Use Indeed as the job source. Design the job ingestion layer as a pluggable service. For MVP, pull job listings by:
-  - Location
-  - Job title keywords
-  - Category
-  - Remote/on-site
-  - Salary range (if available from API)
-- **Browser Automation**: Implement an application automation worker using a browser automation framework (e.g., Playwright or Selenium for Python).
+- **Resume and job embeddings**: OpenAI `text-embedding-3-small`.
+- **Job Source**: TheirStack API. Designed as a pluggable service.
+- **Browser Automation**: Playwright (Python, headless Chromium).
 
 ### 3. Core Functional Components & APIs
 
@@ -698,9 +462,9 @@ Design the backend and API in a modular way. At a minimum implement:
 ### 4. Frontend UX Requirements
 
 - **Landing page**: Branding, tagline, "Sign in with Google".
-- **Onboarding flow**: Sign-in, Resume upload, Profile questions, Category selection.
+- **Onboarding flow**: Sign-in, Resume upload, Profile questions, Gmail consent, Category selection.
 - **Job browsing / swipe page**: Tinder-style card deck. Swipe controls. Filters panel.
-- **Applications dashboard**: List of applications with status. Detail view with timeline.
+- **Applications dashboard**: Kanban board with drag-and-drop status management. Detail view with timeline.
 - **Settings / account page**: Update profile, reconnect Gmail, view resume.
 - **Legal pages**: Privacy Policy, Terms of Use.
 
@@ -712,6 +476,8 @@ Design the backend and API in a modular way. At a minimum implement:
 - Role-based access (user can only see their own data).
 - Read-only Gmail scopes.
 - User mechanisms for revoking access and deleting account.
+
+---
 
 ## Change Log
 
@@ -730,6 +496,7 @@ Design the backend and API in a modular way. At a minimum implement:
 | 2026-02-15 | Goal 2 Enhancement: User Input for Unfillable Fields | **Pause & Resume**: When the bot encounters fields it can't fill (custom employer questions, missing profile data), it saves progress and pauses instead of giving up. <br> **New Status**: Added `USER_INPUT_NEEDED` to `ApplicationStatus` with `automation_state` JSON column storing filled fields, missing fields, and page URL. <br> **New Kanban Column**: "✍️ Needs Input" column shows applications awaiting user input. <br> **Inline Form**: Application cards show dynamically-rendered input fields for each missing field with labels and types, plus a "🚀 Resume Application" button. <br> **New API**: `POST /applications/{id}/provide-fields` accepts user-provided values and triggers `resume_automation()` as a BackgroundTask. <br> **Form Detector**: Added `get_all_visible_inputs()` to catch custom fields not matched by pattern detection. |
 | 2026-02-17 | Goal 4: Gmail Integration for Status Tracking | **Gmail OAuth**: Server-side OAuth 2.0 flow for `gmail.readonly` scope with connect/callback/status/disconnect/poll endpoints. <br> **Gmail Service**: Full rewrite of `gmail.py` — `build_gmail_service()` (refresh token → client), `fetch_recent_emails()` (date-filtered search with recruiter domain + subject pattern filtering), `classify_email()` (GPT-4o-mini classification returning status/confidence/company_name), `match_to_application()` (fuzzy Jaccard company-name matching). <br> **Background Scheduler**: APScheduler `BackgroundScheduler` polls all Gmail-connected users every 15 minutes via `poll_all_users()`. <br> **Status Priority**: Won't downgrade statuses (e.g., won't go from INTERVIEW_INVITED back to APPLIED), only updates when confidence ≥ 0.7. <br> **Onboarding**: New Step 3 "Connect Gmail" with privacy note (read-only), connect/skip buttons. Profile view shows Gmail badge + disconnect option. <br> **Frontend**: New `GmailService` (connect, status, disconnect, poll). <br> **Model**: Added `gmail_refresh_token` and `gmail_connected_at` columns to `User`. |
 | 2026-02-18 | Goal 6: PostgreSQL Migration & Production Hardening | **Docker Compose**: Created `docker-compose.yml` with PostgreSQL 16 + pgvector (deferred until Docker installed). <br> **Dockerfile**: Backend Dockerfile with Python 3.12, system deps, Playwright chromium. <br> **Config**: `DATABASE_URL` env var as primary DB override; SQLite fallback preserved; `RATE_LIMIT_GLOBAL` + `RATE_LIMIT_PER_USER` settings; removed `SQLALCHEMY_DATABASE_URI`. <br> **Rate Limiting**: slowapi middleware — 30 req/min per-user (by IP), with `RateLimitExceeded` handler. <br> **File Validation**: Magic byte checks on resume uploads — verifies PDF (`%PDF`) and DOCX (`PK\x03\x04`) headers; rejects renamed files even if extension matches. <br> **Cosine-Similarity Ranking**: `rank_jobs_by_embedding()` using numpy — compares user's resume embedding against job description embeddings, returns jobs sorted by similarity. Works with both SQLite JSON and pgvector. <br> **Secrets Audit**: `.env` is sole source for all sensitive config; commented `DATABASE_URL` ready for Postgres switch. |
+| 2026-02-24 | README Overhaul | Full restructure of `README.md`: moved Setup to top with prerequisites table, env var reference, and one-command quick start; updated Features to reflect all completed Phase 2 work; corrected Tech Stack to match actual dependencies (Angular 18, TheirStack, GPT-4o-mini, text-embedding-3-small); added Phase 2 progress overview table with completion statuses; condensed Frontend Development into a command table; trimmed Future Work to only remaining items; updated Original Requirements to reference TheirStack and Kanban dashboard. |
 
 ## License
 
