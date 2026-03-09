@@ -1,0 +1,26 @@
+# Render Blueprint — Jinder Backend
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: jinder-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: GOOGLE_CLIENT_ID
+        sync: false  # Set manually in Render dashboard
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: THEIRSTACK_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://nabeelr64.github.io/JobAppBot2
+      - key: BACKEND_URL
+        value: https://jinder-api.onrender.com

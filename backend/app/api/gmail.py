@@ -35,13 +35,13 @@ def _build_oauth_flow() -> Flow:
             "client_secret": settings.GOOGLE_CLIENT_SECRET,
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
-            "redirect_uris": [settings.GMAIL_REDIRECT_URI],
+            "redirect_uris": [settings.gmail_redirect_uri],
         }
     }
     flow = Flow.from_client_config(
         client_config,
         scopes=settings.GMAIL_SCOPES,
-        redirect_uri=settings.GMAIL_REDIRECT_URI,
+        redirect_uri=settings.gmail_redirect_uri,
     )
     return flow
 
@@ -109,7 +109,7 @@ def gmail_callback(
     logger.info(f"[Gmail] User {user_id} connected Gmail successfully")
 
     # Redirect back to frontend
-    return RedirectResponse(url="http://localhost:4200/onboarding?gmail=connected")
+    return RedirectResponse(url=f"{settings.FRONTEND_URL}/onboarding?gmail=connected")
 
 
 @router.get("/status")

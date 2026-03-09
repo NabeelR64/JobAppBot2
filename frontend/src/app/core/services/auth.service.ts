@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap, switchMap, of, catchError } from 'rxjs';
 import { Router } from '@angular/router';
 import { authConfig } from '../../auth/auth.config';
+import { environment } from '../../../environments/environment';
 
 export interface User {
     id: number;
@@ -23,7 +24,7 @@ declare global {
     providedIn: 'root'
 })
 export class AuthService {
-    private apiUrl = 'http://localhost:8000/api/v1/auth';
+    private apiUrl = `${environment.apiUrl}/auth`;
     private _accessToken: string | null = null;
 
     // Dependency Injection
@@ -103,7 +104,7 @@ export class AuthService {
     private fetchCurrentUser(): Observable<User> {
         if (!this._accessToken) return of(null as any);
 
-        return this.http.get<User>('http://localhost:8000/api/v1/users/me', {
+        return this.http.get<User>(`${environment.apiUrl}/users/me`, {
             headers: { Authorization: `Bearer ${this._accessToken}` }
         }).pipe(
             tap(user => this.currentUser.set(user)),
