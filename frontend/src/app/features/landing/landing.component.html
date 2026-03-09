@@ -1,17 +1,37 @@
 <div class="landing-container">
-    <header>
-        <div class="logo">Jinder</div>
-        <nav>
-            <a routerLink="/dashboard">Dashboard</a>
-        </nav>
-    </header>
     <main>
         <div class="hero">
-            <h1>Swipe Your Way to Your Dream Job</h1>
-            <p>Jinder automates the job hunt. Upload your resume, swipe on jobs you like, and let our AI apply for you.
-            </p>
+            <div class="hero-badge">🚀 AI-Powered Job Applications</div>
+            <h1>Swipe Your Way to<br><span class="gradient-text">Your Dream Job</span></h1>
+            <p class="hero-subtitle">Upload your resume, swipe on jobs you love, and let Jinder's AI apply for you
+                automatically. Track every application on your personal Kanban board.</p>
             <div class="cta">
-                <button class="btn-primary" (click)="signInWithGoogle()">Sign in with Google</button>
+                <button class="btn-hero" (click)="signInWithGoogle()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        <polyline points="10 17 15 12 10 7" />
+                        <line x1="15" y1="12" x2="3" y2="12" />
+                    </svg>
+                    Get Started Free
+                </button>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Smart Matching</h3>
+                <p>AI recommends jobs that fit your resume, skills, and preferences. No more endless scrolling.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Auto Apply</h3>
+                <p>Swipe right and our bot fills out the application for you — in seconds, not hours.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Track Progress</h3>
+                <p>Kanban board keeps every application organized: pending, applied, interview, offer.</p>
             </div>
         </div>
     </main>

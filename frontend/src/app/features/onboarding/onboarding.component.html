@@ -1,15 +1,37 @@
 <div class="onboarding-container">
-    <div class="card onboarding-card">
-        <h2 *ngIf="!viewMode && step === 0">Welcome! basic info</h2>
-        <h2 *ngIf="!viewMode && step === 1">Upload Resume</h2>
+    <div class="onboarding-card">
+        <!-- Step Progress Bar (only in onboarding mode, not view mode) -->
+        <div class="step-progress" *ngIf="!viewMode">
+            <div class="step-item" [class.active]="step === 0" [class.completed]="step > 0">
+                <div class="step-dot">{{ step > 0 ? '✓' : '1' }}</div>
+                <span>Basic Info</span>
+            </div>
+            <div class="step-line" [class.completed]="step > 0"></div>
+            <div class="step-item" [class.active]="step === 1" [class.completed]="step > 1">
+                <div class="step-dot">{{ step > 1 ? '✓' : '2' }}</div>
+                <span>Resume</span>
+            </div>
+            <div class="step-line" [class.completed]="step > 1"></div>
+            <div class="step-item" [class.active]="step === 2" [class.completed]="step > 2">
+                <div class="step-dot">{{ step > 2 ? '✓' : '3' }}</div>
+                <span>Profile</span>
+            </div>
+            <div class="step-line" [class.completed]="step > 2"></div>
+            <div class="step-item" [class.active]="step === 3" [class.completed]="step > 3">
+                <div class="step-dot">4</div>
+                <span>Gmail</span>
+            </div>
+        </div>
+
+        <h2 *ngIf="!viewMode && step === 0">Let's get started ✨</h2>
+        <h2 *ngIf="!viewMode && step === 1">Upload Resume 📄</h2>
         <h2 *ngIf="!viewMode && step === 2">Edit Profile</h2>
         <h2 *ngIf="!viewMode && step === 3">Connect Gmail</h2>
         <h2 *ngIf="viewMode">My Profile</h2>
 
         <!-- Step 0: Basic Info -->
-        <div *ngIf="step === 0">
-            <h3>Step 0: Let's get to know you</h3>
-            <p>Please provide your basic contact details.</p>
+        <div *ngIf="step === 0" class="step-content">
+            <p class="step-subtitle">Please provide your basic contact details.</p>
             <div class="form-group">
                 <label>Full Name</label>
                 <input type="text" [(ngModel)]="profile.name" placeholder="John Doe">
@@ -22,18 +44,25 @@
                 <label>Phone Number</label>
                 <input type="tel" [(ngModel)]="profile.phone_number" placeholder="(555) 123-4567">
             </div>
-            <button class="btn-primary" (click)="nextStep()"
-                [disabled]="!profile.name || !profile.phone_number">Next</button>
+            <button class="btn-primary" (click)="nextStep()" [disabled]="!profile.name || !profile.phone_number">Next
+                →</button>
         </div>
 
-
-        <!-- Step 1: Upload (Only if not in view mode and step 1) -->
-        <div *ngIf="step === 1 && !viewMode">
-            <h3>Step 1: Upload Resume</h3>
-            <p>Upload your resume (PDF or DOCX) to help us fill out your profile.</p>
-            <input type="file" (change)="onFileSelected($event)" accept=".pdf,.docx">
-            <button class="btn-primary" (click)="uploadResume()" [disabled]="!resumeFile">Next</button>
-            <button class="btn-secondary" (click)="step = 2">Skip Upload</button>
+        <!-- Step 1: Upload -->
+        <div *ngIf="step === 1 && !viewMode" class="step-content">
+            <p class="step-subtitle">Upload your resume (PDF or DOCX) to help us fill out your profile
+                automatically.</p>
+            <div class="upload-area">
+                <div class="upload-icon">📎</div>
+                <input type="file" (change)="onFileSelected($event)" accept=".pdf,.docx" id="resume-upload">
+                <label for="resume-upload" class="upload-label">Choose file or drag here</label>
+                <span class="file-name" *ngIf="resumeFile">{{ resumeFile.name }}</span>
+            </div>
+            <div class="step-actions">
+                <button class="btn-primary" (click)="uploadResume()" [disabled]="!resumeFile">Upload & Continue
+                    →</button>
+                <button class="btn-secondary" (click)="step = 2">Skip Upload</button>
+            </div>
         </div>
 
         <!-- Step 2: Profile Details -->
@@ -41,94 +70,99 @@
 
             <!-- View Mode -->
             <div *ngIf="viewMode" class="profile-view">
-                <div class="view-group">
-                    <label>Name</label>
-                    <p>{{ profile.name || 'Not set' }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Email</label>
-                    <p>{{ authService.currentUser()?.email }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Phone</label>
-                    <p>{{ profile.phone_number || 'Not set' }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Desired Roles</label>
-                    <p>{{ profile.desired_roles || 'Not set' }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Min Salary</label>
-                    <p>{{ profile.desired_salary_min | currency }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Locations</label>
-                    <p>{{ profile.desired_locations || 'Not set' }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Remote Preference</label>
-                    <p>{{ profile.remote_preference }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Age</label>
-                    <p>{{ profile.age || 'Not set' }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Field of Work</label>
-                    <p>{{ profile.field_of_work || 'Not set' }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Region</label>
-                    <p>{{ profile.region || 'Not set' }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Location</label>
-                    <p>{{ profile.location || 'Not set' }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Address</label>
-                    <p>{{ profile.address || 'Not set' }}</p>
-                </div>
-                <div class="view-group">
-                    <label>Experience</label>
-                    <div *ngIf="profile.experience?.length; else noExp">
-                        <div *ngFor="let exp of profile.experience" class="view-card">
-                            <strong>{{ exp.company }}</strong> - {{ exp.title }}
-                            <br>
-                            <small>{{ exp.years }}</small>
-                            <p>{{ exp.description }}</p>
-                        </div>
+                <div class="view-grid">
+                    <div class="view-group">
+                        <label>Name</label>
+                        <p>{{ profile.name || 'Not set' }}</p>
                     </div>
-                    <ng-template #noExp>
-                        <p>Not set</p>
-                    </ng-template>
-                </div>
-                <div class="view-group">
-                    <label>Education</label>
-                    <div *ngIf="profile.education?.length; else noEdu">
-                        <div *ngFor="let edu of profile.education" class="view-card">
-                            <strong>{{ edu.school }}</strong> - {{ edu.degree }}
-                            <br>
-                            <small>{{ edu.years }}</small>
-                        </div>
+                    <div class="view-group">
+                        <label>Email</label>
+                        <p>{{ authService.currentUser()?.email }}</p>
                     </div>
-                    <ng-template #noEdu>
-                        <p>Not set</p>
-                    </ng-template>
+                    <div class="view-group">
+                        <label>Phone</label>
+                        <p>{{ profile.phone_number || 'Not set' }}</p>
+                    </div>
+                    <div class="view-group">
+                        <label>Desired Roles</label>
+                        <p>{{ profile.desired_roles || 'Not set' }}</p>
+                    </div>
+                    <div class="view-group">
+                        <label>Min Salary</label>
+                        <p>{{ profile.desired_salary_min | currency }}</p>
+                    </div>
+                    <div class="view-group">
+                        <label>Locations</label>
+                        <p>{{ profile.desired_locations || 'Not set' }}</p>
+                    </div>
+                    <div class="view-group">
+                        <label>Remote Preference</label>
+                        <p>{{ profile.remote_preference }}</p>
+                    </div>
+                    <div class="view-group">
+                        <label>Age</label>
+                        <p>{{ profile.age || 'Not set' }}</p>
+                    </div>
+                    <div class="view-group">
+                        <label>Field of Work</label>
+                        <p>{{ profile.field_of_work || 'Not set' }}</p>
+                    </div>
+                    <div class="view-group">
+                        <label>Region</label>
+                        <p>{{ profile.region || 'Not set' }}</p>
+                    </div>
+                    <div class="view-group">
+                        <label>Location</label>
+                        <p>{{ profile.location || 'Not set' }}</p>
+                    </div>
+                    <div class="view-group">
+                        <label>Address</label>
+                        <p>{{ profile.address || 'Not set' }}</p>
+                    </div>
                 </div>
 
-                <div class="actions">
-                    <button class="btn-secondary" (click)="toggleEdit()">Edit Profile</button>
+                <div class="section-divider">
+                    <span>Experience</span>
+                </div>
+                <div *ngIf="profile.experience?.length; else noExp">
+                    <div *ngFor="let exp of profile.experience" class="view-card">
+                        <strong>{{ exp.company }}</strong> — {{ exp.title }}
+                        <br>
+                        <small>{{ exp.years }}</small>
+                        <p>{{ exp.description }}</p>
+                    </div>
+                </div>
+                <ng-template #noExp>
+                    <p class="empty-text">No experience added yet</p>
+                </ng-template>
+
+                <div class="section-divider">
+                    <span>Education</span>
+                </div>
+                <div *ngIf="profile.education?.length; else noEdu">
+                    <div *ngFor="let edu of profile.education" class="view-card">
+                        <strong>{{ edu.school }}</strong> — {{ edu.degree }}
+                        <br>
+                        <small>{{ edu.years }}</small>
+                    </div>
+                </div>
+                <ng-template #noEdu>
+                    <p class="empty-text">No education added yet</p>
+                </ng-template>
+
+                <div class="actions-bar">
+                    <button class="btn-secondary" (click)="toggleEdit()">✏️ Edit Profile</button>
                     <button class="btn-secondary" (click)="toggleResumePreview()">
-                        {{ showResumePreview ? 'Close Preview' : 'View Resume' }}
+                        {{ showResumePreview ? '✕ Close Preview' : '📄 View Resume' }}
                     </button>
-                    <button *ngIf="!gmailConnected" class="btn-gmail" (click)="connectGmail()" [disabled]="gmailConnecting">
+                    <button *ngIf="!gmailConnected" class="btn-gmail" (click)="connectGmail()"
+                        [disabled]="gmailConnecting">
                         📧 Connect Gmail
                     </button>
                     <span *ngIf="gmailConnected" class="gmail-badge">✅ Gmail Connected</span>
-                    <button *ngIf="gmailConnected" class="btn-small btn-danger-small" (click)="disconnectGmail()">Disconnect</button>
-                    <button class="btn-danger" (click)="deleteAccount()"
-                        style="background-color: #dc3545; color: white; margin-left: 10px;">Delete Account</button>
+                    <button *ngIf="gmailConnected" class="btn-small btn-danger-small"
+                        (click)="disconnectGmail()">Disconnect</button>
+                    <button class="btn-danger" (click)="deleteAccount()">Delete Account</button>
                 </div>
 
                 <!-- Resume Preview -->
@@ -140,75 +174,80 @@
 
             <!-- Edit Mode -->
             <div *ngIf="!viewMode" class="profile-edit">
-                <h3>Preferences</h3>
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" [(ngModel)]="profile.name">
+                <div class="section-divider">
+                    <span>Preferences</span>
                 </div>
-                <div class="form-group">
-                    <label>Desired Roles (comma separated)</label>
-                    <input type="text" [(ngModel)]="profile.desired_roles"
-                        placeholder="e.g. Backend Engineer, Data Scientist">
-                </div>
-                <div class="form-group">
-                    <label>Desired Locations (comma separated)</label>
-                    <input type="text" [(ngModel)]="profile.desired_locations" placeholder="e.g. New York, Remote">
-                </div>
-                <div class="form-group">
-                    <label>Min Salary</label>
-                    <input type="number" [(ngModel)]="profile.desired_salary_min">
-                </div>
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="tel" [(ngModel)]="profile.phone_number">
-                </div>
-                <div class="form-group">
-                    <label>Seniority (e.g. Senior, Staff)</label>
-                    <input type="text" [(ngModel)]="profile.seniority_preference">
-                </div>
-                <div class="form-group">
-                    <label>Company Size Prefs (comma separated)</label>
-                    <input type="text" [(ngModel)]="profile.company_size_prefs" placeholder="e.g. Startup, Enterprise">
-                </div>
-                <div class="form-group">
-                    <label>Disallowed Categories (comma separated)</label>
-                    <input type="text" [(ngModel)]="profile.disallowed_categories" placeholder="e.g. Gambling, Crypto">
-                </div>
-                <div class="form-group">
-                    <label>Remote Preference</label>
-                    <select [(ngModel)]="profile.remote_preference">
-                        <option value="REMOTE">Remote</option>
-                        <option value="HYBRID">Hybrid</option>
-                        <option value="ON_SITE">On-site</option>
-                    </select>
-                </div>
-                <!-- New Fields -->
-                <div class="form-group">
-                    <label>Age</label>
-                    <input type="number" [(ngModel)]="profile.age">
-                </div>
-                <div class="form-group">
-                    <label>Field of Work</label>
-                    <input type="text" [(ngModel)]="profile.field_of_work">
-                </div>
-                <div class="form-group">
-                    <label>Region</label>
-                    <input type="text" [(ngModel)]="profile.region">
-                </div>
-                <div class="form-group">
-                    <label>Location (City/State)</label>
-                    <input type="text" [(ngModel)]="profile.location">
-                </div>
-                <div class="form-group">
-                    <label>Full Address</label>
-                    <input type="text" [(ngModel)]="profile.address">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" [(ngModel)]="profile.name">
+                    </div>
+                    <div class="form-group">
+                        <label>Desired Roles (comma separated)</label>
+                        <input type="text" [(ngModel)]="profile.desired_roles"
+                            placeholder="e.g. Backend Engineer, Data Scientist">
+                    </div>
+                    <div class="form-group">
+                        <label>Desired Locations (comma separated)</label>
+                        <input type="text" [(ngModel)]="profile.desired_locations" placeholder="e.g. New York, Remote">
+                    </div>
+                    <div class="form-group">
+                        <label>Min Salary</label>
+                        <input type="number" [(ngModel)]="profile.desired_salary_min">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" [(ngModel)]="profile.phone_number">
+                    </div>
+                    <div class="form-group">
+                        <label>Seniority (e.g. Senior, Staff)</label>
+                        <input type="text" [(ngModel)]="profile.seniority_preference">
+                    </div>
+                    <div class="form-group">
+                        <label>Company Size Prefs (comma separated)</label>
+                        <input type="text" [(ngModel)]="profile.company_size_prefs"
+                            placeholder="e.g. Startup, Enterprise">
+                    </div>
+                    <div class="form-group">
+                        <label>Disallowed Categories (comma separated)</label>
+                        <input type="text" [(ngModel)]="profile.disallowed_categories"
+                            placeholder="e.g. Gambling, Crypto">
+                    </div>
+                    <div class="form-group">
+                        <label>Remote Preference</label>
+                        <select [(ngModel)]="profile.remote_preference">
+                            <option value="REMOTE">Remote</option>
+                            <option value="HYBRID">Hybrid</option>
+                            <option value="ON_SITE">On-site</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Age</label>
+                        <input type="number" [(ngModel)]="profile.age">
+                    </div>
+                    <div class="form-group">
+                        <label>Field of Work</label>
+                        <input type="text" [(ngModel)]="profile.field_of_work">
+                    </div>
+                    <div class="form-group">
+                        <label>Region</label>
+                        <input type="text" [(ngModel)]="profile.region">
+                    </div>
+                    <div class="form-group">
+                        <label>Location (City/State)</label>
+                        <input type="text" [(ngModel)]="profile.location">
+                    </div>
+                    <div class="form-group">
+                        <label>Full Address</label>
+                        <input type="text" [(ngModel)]="profile.address">
+                    </div>
                 </div>
 
                 <!-- Experience Section -->
                 <div class="form-group section-group">
                     <div class="section-header">
                         <h3>Experience</h3>
-                        <button class="btn-small" (click)="addExperience()">+ Add</button>
+                        <button class="btn-add" (click)="addExperience()">+ Add</button>
                     </div>
                     <div *ngFor="let exp of profile.experience; let i = index" class="card-item">
                         <div class="row">
@@ -227,7 +266,7 @@
                 <div class="form-group section-group">
                     <div class="section-header">
                         <h3>Education</h3>
-                        <button class="btn-small" (click)="addEducation()">+ Add</button>
+                        <button class="btn-add" (click)="addEducation()">+ Add</button>
                     </div>
                     <div *ngFor="let edu of profile.education; let i = index" class="card-item">
                         <div class="row">
@@ -251,8 +290,8 @@
                     </div>
                 </div>
 
-                <div class="actions">
-                    <button class="btn-primary" (click)="submitProfile()">Save</button>
+                <div class="actions-bar">
+                    <button class="btn-primary" (click)="submitProfile()">💾 Save Profile</button>
                     <button *ngIf="originalProfile" class="btn-secondary" (click)="cancelEdit()">Cancel</button>
                 </div>
             </div>
@@ -264,11 +303,13 @@
             <h3>Connect Your Gmail</h3>
             <p class="gmail-desc">
                 Let Jinder automatically track your application statuses by reading recruiter emails.
-                We'll detect interview invites, rejections, and follow-ups — so your Kanban board stays up to date without lifting a finger.
+                We'll detect interview invites, rejections, and follow-ups — so your Kanban board stays up to date
+                without lifting a finger.
             </p>
             <div class="gmail-privacy">
                 <span class="lock-icon">🔒</span>
-                <span><strong>Read-only access</strong> — we can only read emails, never send or delete. You can disconnect anytime.</span>
+                <span><strong>Read-only access</strong> — we can only read emails, never send or delete. You can
+                    disconnect anytime.</span>
             </div>
             <div class="gmail-actions">
                 <button class="btn-gmail-connect" (click)="connectGmail()" [disabled]="gmailConnecting">

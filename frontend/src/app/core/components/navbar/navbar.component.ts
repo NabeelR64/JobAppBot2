@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 export class NavbarComponent implements OnInit {
 
   showDropdown = false;
+  mobileMenuOpen = false;
 
   constructor(public authService: AuthService, private ngZone: NgZone) { }
 
@@ -39,10 +40,16 @@ export class NavbarComponent implements OnInit {
     this.showDropdown = !this.showDropdown;
   }
 
+  toggleMobileMenu() {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
   logout() {
     this.authService.logout();
     this.showDropdown = false;
+    this.mobileMenuOpen = false;
     // Re-render button after logout updates the view
     setTimeout(() => this.renderGoogleButton(), 100);
   }
 }
+

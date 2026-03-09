@@ -1,48 +1,97 @@
 <div class="swipe-container">
-    <div class="card job-card" *ngIf="currentJob; else noJobs">
-        <div class="job-header">
-            <h2>{{ currentJob.title }}</h2>
-            <h3>{{ currentJob.company_name }}</h3>
-        </div>
-
-        <div class="job-meta-grid">
-            <div class="meta-item">
-                <span class="meta-label">Location</span>
-                <span class="meta-value">{{ currentJob.location || 'Not specified' }}</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">Salary</span>
-                <span class="meta-value">{{ currentJob.salary_range || 'Not specified' }}</span>
-            </div>
-            <div class="meta-item">
-                <span class="meta-label">Type</span>
-                <span class="meta-value">{{ currentJob.employment_type || 'Full-time' }}</span>
-            </div>
-            <!-- Placeholder for experience if we parse it later -->
-            <div class="meta-item">
-                <span class="meta-label">Experience</span>
-                <span class="meta-value">Not specified</span>
+    <div class="swipe-card" *ngIf="currentJob; else noJobs">
+        <!-- Progress indicator -->
+        <div class="progress-bar">
+            <span class="progress-text">{{ jobs.length }} job{{ jobs.length !== 1 ? 's' : '' }} remaining</span>
+            <div class="progress-dots">
+                <span class="dot" *ngFor="let j of jobs.slice(0, 5); let i = index" [class.active]="i === 0"></span>
+                <span class="dot-more" *ngIf="jobs.length > 5">+{{ jobs.length - 5 }}</span>
             </div>
         </div>
 
-        <div class="job-description-section">
-            <h4>Description</h4>
-            <p class="description">{{ truncatedDescription }}</p>
-            <div *ngIf="currentJob.url" class="external-app-link">
-                <a [href]="currentJob.url" target="_blank" rel="noopener noreferrer">View Full Job Post ↗</a>
+        <div class="card-content">
+            <div class="job-header">
+                <h2>{{ currentJob.title }}</h2>
+                <h3>{{ currentJob.company_name }}</h3>
+            </div>
+
+            <div class="job-meta-grid">
+                <div class="meta-item">
+                    <span class="meta-icon">📍</span>
+                    <div>
+                        <span class="meta-label">Location</span>
+                        <span class="meta-value">{{ currentJob.location || 'Not specified' }}</span>
+                    </div>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">💰</span>
+                    <div>
+                        <span class="meta-label">Salary</span>
+                        <span class="meta-value">{{ currentJob.salary_range || 'Not specified' }}</span>
+                    </div>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">💼</span>
+                    <div>
+                        <span class="meta-label">Type</span>
+                        <span class="meta-value">{{ currentJob.employment_type || 'Full-time' }}</span>
+                    </div>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-icon">📈</span>
+                    <div>
+                        <span class="meta-label">Experience</span>
+                        <span class="meta-value">Not specified</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="job-description-section">
+                <h4>Description</h4>
+                <p class="description">{{ truncatedDescription }}</p>
+                <div *ngIf="currentJob.url" class="external-app-link">
+                    <a [href]="currentJob.url" target="_blank" rel="noopener noreferrer">
+                        View Full Job Post
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
+
         <div class="actions">
-            <button class="btn-swipe btn-left" (click)="swipe('LEFT')">Skip</button>
-            <button class="btn-swipe btn-right" (click)="swipe('RIGHT')">Apply & Next</button>
+            <button class="btn-swipe btn-skip" (click)="swipe('LEFT')">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+                Skip
+            </button>
+            <button class="btn-swipe btn-apply" (click)="swipe('RIGHT')">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Apply
+            </button>
         </div>
     </div>
 
     <ng-template #noJobs>
         <div class="no-jobs">
-            <h2>No more jobs!</h2>
-            <p>Check back later for more recommendations.</p>
-            <button class="btn-primary" (click)="loadJobs()">Refresh</button>
+            <div class="no-jobs-icon">🎉</div>
+            <h2>All caught up!</h2>
+            <p>No more jobs to review right now. Check back soon for new recommendations.</p>
+            <button class="btn-primary" (click)="loadJobs()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 4 23 10 17 10" />
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                </svg>
+                Refresh
+            </button>
         </div>
     </ng-template>
 </div>

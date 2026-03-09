@@ -7,7 +7,11 @@
         </div>
         <div class="header-actions">
             <div class="search-box">
-                <span class="search-icon">🔍</span>
+                <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
                 <input type="text" placeholder="Search company or role..." [(ngModel)]="searchQuery"
                     (ngModelChange)="onSearchChange()" class="search-input" />
             </div>
@@ -15,7 +19,18 @@
                 [title]="'Sort by ' + (sortMode === 'date' ? 'company name' : 'date')">
                 {{ sortMode === 'date' ? '📅 Newest' : '🔤 A–Z' }}
             </button>
-            <button class="btn-danger" (click)="deleteAccount()">Delete Account</button>
+            <button class="btn-danger-sm" (click)="deleteAccount()">Delete Account</button>
+        </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar" *ngIf="!loading && totalApplications > 0">
+        <div class="stat-card" *ngFor="let column of columns">
+            <div class="stat-color" [style.background-color]="column.color"></div>
+            <div class="stat-info">
+                <span class="stat-number">{{ column.applications.length }}</span>
+                <span class="stat-label">{{ column.icon }} {{ column.title }}</span>
+            </div>
         </div>
     </div>
 
