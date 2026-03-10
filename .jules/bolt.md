@@ -1,0 +1,3 @@
+## 2024-05-18 - SQLAlchemy In-Memory List vs Subquery for NOT IN
+**Learning:** Found an anti-pattern in `backend/app/api/jobs.py` where we fetch all swiped job IDs into a Python list and then pass them to `notin_()` for filtering recommendations. This results in huge SQL queries and O(N) application memory usage. Passing a large list of IDs into `notin_()` is a known SQLAlchemy performance issue.
+**Action:** Always use SQLAlchemy subqueries (e.g., passing a query object directly to `notin_()`) instead of evaluating the query and fetching results into application memory for large filtering criteria.

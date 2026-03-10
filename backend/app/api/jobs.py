@@ -31,18 +31,19 @@ def get_recommendations(
     Get job recommendations.
     For MVP, just return random jobs that haven't been swiped yet.
     """
-    # Get swiped job ids
-    swiped_ids = db.query(SwipeAction.job_posting_id).filter(SwipeAction.user_id == current_user.id).all()
-    swiped_ids = [id[0] for id in swiped_ids]
+    # Get swiped job ids as a subquery for performance
+    # This prevents loading potentially thousands of IDs into application memory
+    # and creating a massive SQL IN clause
+    swiped_ids_subquery = db.query(SwipeAction.job_posting_id).filter(SwipeAction.user_id == current_user.id)
     
-    jobs = db.query(JobPosting).filter(JobPosting.id.notin_(swiped_ids)).offset(skip).limit(limit).all()
+    jobs = db.query(JobPosting).filter(JobPosting.id.notin_(swiped_ids_subquery)).offset(skip).limit(limit).all()
     
     # If no jobs, try fetching fresh jobs specifically for this user's preferences
     if not jobs:
         # job_ingestion.ingest_jobs(db) # Old generic way
         job_ingestion.fetch_jobs_for_user(db, current_user)
         # Query again
-        jobs = db.query(JobPosting).filter(JobPosting.id.notin_(swiped_ids)).offset(skip).limit(limit).all()
+        jobs = db.query(JobPosting).filter(JobPosting.id.notin_(swiped_ids_subquery)).offset(skip).limit(limit).all()
         
     return jobs
 
