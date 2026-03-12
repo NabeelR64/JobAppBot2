@@ -1,0 +1,3 @@
+## 2024-11-20 - [Optimize N+1/Massive IN Query in SQLAlchemy]
+**Learning:** In SQLAlchemy, avoid evaluating queries into massive lists of IDs in application memory just to use them in an `IN` or `NOT IN` filter. SQLAlchemy's `in_()` and `notin_()` natively support unexecuted `Query` objects, transforming large list operations into highly efficient subqueries. Loading large lists of IDs into application memory leads to O(N) memory usage and massive SQL payload strings, causing potential parsing bottlenecks.
+**Action:** Always verify if an evaluated query passed to `in_()`/`notin_()` can be replaced by an unexecuted query object. Look for `.all()` right before a `.filter(...in_(...))` in the codebase.
